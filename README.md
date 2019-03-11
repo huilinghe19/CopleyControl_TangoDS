@@ -20,22 +20,22 @@
 
 	3.1 Starten jive:
 
- 		Command: “jive”
+ 	Command: “jive”
 
 	3.2 Starten PySerial DS:
 
- 		Command: “python PySerial.py test”
+ 	Command: “python PySerial.py test”
 
-		In addition, a new device “pyserial/hhl/1” will be added in PySerial DS. 
+	In addition, a new device “pyserial/hhl/1” will be added in PySerial DS. 
 
 
-		NOTE: Serial port is defined as “/dev/ttyS0” in the “__init__()” method in “PySerial.py”. If the serial port is different or the operating system is different, then the serial port should be changed manually. 
+	NOTE: Serial port is defined as “/dev/ttyS0” in the “__init__()” method in “PySerial.py”. If the serial port is different or the operating system is different, then the serial port should be changed manually. 
 
 	3.3. Starten CopleyControl DS:
 
- 		Command: “python CopleyControl.py test”
+ 	Command: “python CopleyControl.py test”
 
-		In addition, a new device “copley/hhl/1” will be added in CopleyControl DS. 
+	In addition, a new device “copley/hhl/1” will be added in CopleyControl DS. 
 
 
 
@@ -43,7 +43,7 @@
 
 The copley control DS has 7 Commands and 8 attributes. 
 
-	7 Commands are: Init, Move, SendCommandGetResult, State, Status, Stop, Write. 
+7 Commands are: Init, Move, SendCommandGetResult, State, Status, Stop, Write. 
 
 	Init: init the parameters. 
 
@@ -70,7 +70,7 @@ The copley control DS has 7 Commands and 8 attributes.
 	Write: write ASCII message to the controller directly. (This is for testing)
 	
 	
-	8 Attributes are: Acceleration, Deceleration, NodeID, Port, Position, State, Status, Velocity.
+8 Attributes are: Acceleration, Deceleration, NodeID, Port, Position, State, Status, Velocity.
 
 	Acceleration: 
 		Read: read the real acceleration 
