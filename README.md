@@ -5,10 +5,15 @@
 	CopleyControl is a Device Server of copley controller to control the motors. It is based of PySerial Device Server, which transfer the ASCII messages to the controllers. 
 
 2. Operating environment and software support: 
+
 	Debian 9 system. 
+	
 	Python 2.7. 
+	
 	Jive. 
+	
 	Tango, PyTango
+	
 	CME 2 (copley control software)
 
 3. How to use them. 
