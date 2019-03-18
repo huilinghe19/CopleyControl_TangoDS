@@ -46,7 +46,7 @@ import PyTango
 import sys
 # Add additional import
 #----- PROTECTED REGION ID(SynchroMotorDS.additionnal_import) ENABLED START -----#
-
+from itertools import groupby
 #----- PROTECTED REGION END -----#	//	SynchroMotorDS.additionnal_import
 
 # Device States Description
@@ -79,7 +79,7 @@ class SynchroMotorDS (PyTango.Device_4Impl):
         self.debug_stream("In init_device()")
         self.get_device_properties(self.get_device_class())
         #----- PROTECTED REGION ID(SynchroMotorDS.init_device) ENABLED START -----#
-        
+       
         #----- PROTECTED REGION END -----#	//	SynchroMotorDS.init_device
 
     def always_executed_hook(self):
@@ -114,7 +114,8 @@ class SynchroMotorDS (PyTango.Device_4Impl):
         self.debug_stream("In dev_state()")
         argout = PyTango.DevState.UNKNOWN
         #----- PROTECTED REGION ID(SynchroMotorDS.State) ENABLED START -----#
-        
+        argout = PyTango.DevState.ON
+        self.set_state(argout)
         #----- PROTECTED REGION END -----#	//	SynchroMotorDS.State
         if argout != PyTango.DevState.ALARM:
             PyTango.Device_4Impl.dev_state(self)
@@ -128,7 +129,7 @@ class SynchroMotorDS (PyTango.Device_4Impl):
         self.debug_stream("In dev_status()")
         argout = ""
         #----- PROTECTED REGION ID(SynchroMotorDS.Status) ENABLED START -----#
-        
+        self.argout = "Status is ON"
         #----- PROTECTED REGION END -----#	//	SynchroMotorDS.Status
         self.set_status(self.argout)
         self.__status = PyTango.Device_4Impl.dev_status(self)
@@ -141,16 +142,85 @@ class SynchroMotorDS (PyTango.Device_4Impl):
         """
         self.debug_stream("In Move()")
         #----- PROTECTED REGION ID(SynchroMotorDS.Move) ENABLED START -----#
-        for device in argin:
-            print device
-            dev = PyTango.DeviceProxy(device) 
-            dev.Init()
-            dev.Move()
+        try:
+            for i in argin:        
+                print "The device is:", i
+                dev = PyTango.DeviceProxy(str(i))                 
+                list_commands = dev.get_command_list()
+                #print list_commands
+                if "Move" in list_commands:
+                    dev.Move()
+                    print "Move the device:", i
+                else:
+                    print "NO Command: Move in DeviceProxy:", i               
+        except:
+            print "Error: the input is not valid."
+   
         #----- PROTECTED REGION END -----#	//	SynchroMotorDS.Move
+        
+    def GetPositions(self, argin):
+        """ 
+        :param argin: 
+        :type argin: PyTango.DevVarStringArray
+        :rtype: PyTango.DevVarDoubleArray
+        """
+        self.debug_stream("In GetPositions()")
+        argout = [0.0]
+        #----- PROTECTED REGION ID(SynchroMotorDS.GetPositions) ENABLED START -----#
+        list_positions = []             
+        try: 
+            for i in argin:
+                dev = PyTango.DeviceProxy(str(i)) 
+                list_attributes = dev.get_attribute_list()
+                #print list_attributes
+                if "Position" in list_attributes:
+                    pos = dev.Position
+                    print "DeviceProxy:", i, "has Position:", pos
+                    list_positions.append(pos)
+                else:
+                    print "NO Attribute: Position in DeviceProxy:", i
+             
+        except:
+            print "Error: the input is not valid."
+        return list_positions
+        #----- PROTECTED REGION END -----#	//	SynchroMotorDS.GetPositions
+        return argout
+        
+    def GetDevicesStatus(self, argin):
+        """ 
+        :param argin: 
+        :type argin: PyTango.DevVarStringArray
+        :rtype: PyTango.DevVarStringArray
+        """
+        self.debug_stream("In GetDevicesStatus()")
+        argout = [""]
+        #----- PROTECTED REGION ID(SynchroMotorDS.GetDevicesStatus) ENABLED START -----#
+        list_status = []             
+        try: 
+            for i in argin:
+                dev_proxy = PyTango.DeviceProxy(i) 
+                list_attributes = dev_proxy.get_attribute_list()
+                if "Status" in list_attributes:
+                    status = dev_proxy.Status()
+                    print status
+                    list_status.append(str(status))
+                    print list_status
+                else:
+                    print "NO Attribute: Status in DeviceProxy:", i                 
+        except:
+            print "Error: the input is not valid."
+        argout = list_status 
+        return argout    
+        #----- PROTECTED REGION END -----#	//	SynchroMotorDS.GetDevicesStatus
+        return argout
         
 
     #----- PROTECTED REGION ID(SynchroMotorDS.programmer_methods) ENABLED START -----#
     
+    
+  
+        
+                
     #----- PROTECTED REGION END -----#	//	SynchroMotorDS.programmer_methods
 
 class SynchroMotorDSClass(PyTango.DeviceClass):
@@ -175,6 +245,12 @@ class SynchroMotorDSClass(PyTango.DeviceClass):
         'Move':
             [[PyTango.DevVarStringArray, "none"],
             [PyTango.DevVoid, "none"]],
+        'GetPositions':
+            [[PyTango.DevVarStringArray, "none"],
+            [PyTango.DevVarDoubleArray, "none"]],
+        'GetDevicesStatus':
+            [[PyTango.DevVarStringArray, "none"],
+            [PyTango.DevVarStringArray, "none"]],
         }
 
 
