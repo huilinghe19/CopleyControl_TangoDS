@@ -91,7 +91,7 @@ class CopleyControl (PyTango.Device_4Impl):
         self.attr_FlagMotorReady_read = 0
         self.attr_CwLimit_read = 20000
         self.attr_CcwLimit_read = -20000
-        self.attr_HomePosition_read = 0
+        self.attr_HomePosition_read = 15000
         self.attr_BaseRate_read = 7000
         self.attr_Conversion_read = 1000
         print "In ", self.get_name(), "::init_device()"
@@ -185,7 +185,7 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In read_Velocity()")
         #----- PROTECTED REGION ID(CopleyControl.Velocity_read) ENABLED START -----#
         print "In ", self.get_name(), "::read_Velocity()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xcb")
+        command = self.getParameterCommand(self.attr_NodeID_read, "g r0x18")
         attr_Velocity_read =  self.SendCommandGetResult(command)
         if attr_Velocity_read != '':
             attr.set_value(int(attr_Velocity_read))
@@ -196,7 +196,7 @@ class CopleyControl (PyTango.Device_4Impl):
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Velocity_write) ENABLED START -----#
         print "In ", self.get_name(), "::write_Velocity()", str(data) 
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0xcb", str(int(data)))
+        command = self.setParameterCommand(self.attr_NodeID_read, "s r0x18", str(int(data)))
         self.Write(command)
         #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_write
         
@@ -263,8 +263,8 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In read_CwLimit()")
         #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
         print "In ", self.get_name(), "::read_CwLimit()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0x2d")
-        self.attr_CwLimit_read =  self.SendCommandGetResult(command)
+        #command = self.getParameterCommand(self.attr_NodeID_read, "g r0x2d")
+        #self.attr_CwLimit_read =  self.SendCommandGetResult(command)
         if self.attr_CwLimit_read != '':
             attr.set_value(int(self.attr_CwLimit_read))     
        
@@ -274,8 +274,8 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In read_CcwLimit()")
         #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
         print "In ", self.get_name(), "::read_CcwLimit()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0x2d")
-        self.attr_CwLimit_read =  self.SendCommandGetResult(command)
+        #command = self.getParameterCommand(self.attr_NodeID_read, "g r0x2d")
+        #self.attr_CwLimit_read =  self.SendCommandGetResult(command)
         if self.attr_CwLimit_read != '':
             self.attr_CcwLimit_read  = -int(self.attr_CwLimit_read)
             attr.set_value(self.attr_CcwLimit_read)       
@@ -413,35 +413,38 @@ class CopleyControl (PyTango.Device_4Impl):
         print "In ", self.get_name(), "::StopMove()"
         nodeID = self.attr_NodeID_read
         self.Write("{} t 0\n".format(str(nodeID)))
-      
         #----- PROTECTED REGION END -----#	//	CopleyControl.StopMove
         
-    def GetRegister(self):
+    def GetRegister(self, argin):
         """ 
-        :rtype: PyTango.DevLong
+        :type argin: PyTango.DevLong
+        :rtype: PyTango.DevString
         """
         self.debug_stream("In GetRegister()")
-        argout = 0.0
-        #----- PROTECTED REGION ID(CopleyControl.CheckMove) ENABLED START -----#
+        argout = ""
+        #----- PROTECTED REGION ID(CopleyControl.GetRegister) ENABLED START -----#
         print "In ", self.get_name(), "::GetRegister()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xa0")
-        self.Drive_Event_Status_Register =  self.SendCommandGetResult(command)
-        argout = int(self.Drive_Event_Status_Register)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.CheckMove(self)
+       
+        command = str(self.attr_NodeID_read) + " i r" + str(argin) 
+      
+        argout = self.SendCommandGetResult(command)
+        #----- PROTECTED REGION END -----#	//	CopleyControl.GetRegister
         return argout
+      
     
     def SetRegister(self, argin):
         """ 
-        :type argin: PyTango.DevLong       
+        :type argin: PyTango.DevVarStringArray
         
         """
         self.debug_stream("In SetRegister()")
       
         #----- PROTECTED REGION ID(CopleyControl.CheckMove) ENABLED START -----#
         print "In ", self.get_name(), "::SetRegister()"
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0xc9", int(argin))
+        register_id = argin[0]
+        value = argin[1]
+        command = str(self.attr_NodeID_read) + " i r" + str(register_id) + " " + str(value)
         self.Write(command)
-        
         #----- PROTECTED REGION END -----#	//	CopleyControl.CheckMove(self):
       
     
@@ -528,6 +531,8 @@ class CopleyControl (PyTango.Device_4Impl):
         #----- PROTECTED REGION END -----#	//	CopleyControl.Move
         return argout
     
+   
+    
     def MoveToCcwLimit(self):
         """ 
          :rtype: PyTango.DevLong
@@ -596,10 +601,7 @@ class CopleyControl (PyTango.Device_4Impl):
             print "Check Device State please."
             argout = 1
         return argout
-            
-            
-     
-       
+   
         #----- PROTECTED REGION END -----#	//	CopleyControl.Move
         
     
@@ -678,7 +680,7 @@ class CopleyControl (PyTango.Device_4Impl):
             else:
                 print "PyTango DevState Unknown"
         except:
-            print("An exception with connectSerial() occurred")      
+            print("An exception with connecting DS pyserial/hhl/1 occurred. ")      
         
     def getNodeID(self):
         """ gets the node id from the device properties.
@@ -687,8 +689,8 @@ class CopleyControl (PyTango.Device_4Impl):
         dict_nodeID = db.get_device_property(str(self.name),"node_id")
         return int(dict_nodeID["node_id"][0])
     
-
-      
+  
+        
     #----- PROTECTED REGION END -----#	//	CopleyControl.programmer_methods
 
 class CopleyControlClass(PyTango.DeviceClass):
@@ -709,16 +711,144 @@ class CopleyControlClass(PyTango.DeviceClass):
             [PyTango.DevShort, 
              '',
             [] ],
-        'instrument_name':
-            [PyTango.DevString, 
-             '',
+        
+        'Base':
+            [PyTango.DevLong, 
+             'vme base address ',
             [] ],
+        
+         'Channel':
+            [PyTango.DevLong, 
+             'channel number ',
+            [] ],
+        
+        'AccuMax':
+            [PyTango.DevLong, 
+             'the maximum step register value',
+            [] ],
+        
+         'AccuMin':
+            [PyTango.DevLong, 
+             ' the minimun step register value',
+            [] ],
+        
+         'SlewRateMinHw':
+            [PyTango.DevLong, 
+             ' the minumal slew rate, hardware',
+            [] ],
+        
+         'SlewRateMaxHw':
+            [PyTango.DevLong, 
+             ' the maximum slew rate, hardware',
+            [] ],
+        
+        
+         'AccelerationMinHw':
+            [PyTango.DevLong, 
+             'minimum acceleration, hardware',
+            [] ],
+        
+        
+         'AccelerationMaxHw':
+            [PyTango.DevLong, 
+             ' the maximum acceleration',
+            [] ],
+        
+        
+        
+         'Type':
+            [PyTango.DevShort, 
+             ' Motor type. 0 -> StepperMotor, 1 -> Servo ',
+            [] ],
+        'SimulationMode':
+            [PyTango.DevLong, 
+             '0 real mode, 1 simulation mode ',
+            [] ],
+        
+         'MaxVSerie':
+            [PyTango.DevShort, 
+             ' 0 not MaxV, 1 MaxV  ',
+            [] ],
+        
+         'IgnoreLimitSw ':
+            [PyTango.DevLong, 
+             'set to 1: the server will ignore any limit switch signals, so you can move a motor with no switches connected, set to 0: the server will honour limit switch signals ',
+            [] ],
+        
+         'FlagEncoder':
+            [PyTango.DevLong, 
+             '1 if an encoder Rnishaw rgh24 is connected, 2 if an SSI encoder is connected ',
+            [] ],
+        
+        
+         'FlagUseCollisionsSensor':
+            [PyTango.DevLong, 
+             'Set to 1 for using CollisionsSensor Server for checking possible collisions. ',
+            [] ],
+        
+        
+         'CollisionsSensorDS':
+            [PyTango.DevString, 
+             'Name of the CollisionsSensor Device Server to be connected to.  ',
+            [] ],
+        
+         'CollisionsSensorBL':
+            [PyTango.DevString, 
+             'Beamline identification as string, needs for sending to CollisionsSensor. ',
+            [] ],
+        
+        
+        'ZMXDevice':
+            [PyTango.DevString, 
+             'Name of the zmx device connected to this motor.',
+            [] ],
+        
+        'FlagSendDataToCollisionsSensor':
+            [PyTango.DevLong, 
+             'If one limits are send to the collision sensor before checking the movement.It is necessary if any attribute of this server has to be used in the check routine.',
+            [] ],
+        
+        'FlagCutOrMap':
+            [PyTango.DevLong, 
+             '0 - ignore, 1 - cut, 2 - map ',
+            [] ],
+        
+        'AbsoluteEncoderOffset':
+            [PyTango.DevLong, 
+             'SSI absolute encoder difference (in counts)between absolute encoder zero and your desired zero position  ',
+            [] ],
+        
+        'AbsoluteEncoderResolution':
+            [PyTango.DevLong, 
+             'SSI encoder resolution in bits',
+            [] ],
+        
+        'AbsoluteEncoderFrequency':
+            [PyTango.DevLong, 
+             'SSI encoder data rate in Hz.',
+            [] ],
+        
+         'HomeDefinition':
+            [PyTango.DevString, 
+             'EHhiba h home i index b phase a phase  ',
+            [] ],
+        
+        
+         'HomeIndexDefinition':
+            [PyTango.DevLong, 
+             '1 - enables encoder index, phase A and B, 0 - disables I, A, B  ',
+            [] ],
+        
+         'VmeCard':
+            [PyTango.DevLong, 
+             'identifies the VME card, can be 0 or 1, default: 0 ',
+            [] ],
+
         }
 
 
     #    Command definitions
     cmd_list = {
-        
         'Write':
             [[PyTango.DevString, "none"],
             [PyTango.DevVoid, "none"]],
@@ -729,8 +859,9 @@ class CopleyControlClass(PyTango.DeviceClass):
             [[PyTango.DevVoid, "none"],
             [PyTango.DevDouble, "none"]],
         'GetRegister':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevLong, "none"]],
+            [[PyTango.DevLong, "none"],
+            [PyTango.DevString, "none"]],
+        
         'CheckMove':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevLong, "none"]],
@@ -744,7 +875,7 @@ class CopleyControlClass(PyTango.DeviceClass):
             [[PyTango.DevString, "none"],
             [PyTango.DevString, "none"]],
         'SetRegister':
-            [[PyTango.DevLong, "none"],
+            [[PyTango.DevVarStringArray, "none"],
             [PyTango.DevVoid, "none"]],
         'Move':
             [[PyTango.DevVoid, "none"],
@@ -757,8 +888,7 @@ class CopleyControlClass(PyTango.DeviceClass):
             [PyTango.DevLong, "none"]],
         'MoveToCwLimit':
             [[PyTango.DevVoid, "none"],
-            [PyTango.DevLong, "none"]],
-        
+            [PyTango.DevLong, "none"]],        
         'MoveHome':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevLong, "none"]],
@@ -817,6 +947,7 @@ class CopleyControlClass(PyTango.DeviceClass):
             [[PyTango.DevLong,
             PyTango.SCALAR,
             PyTango.READ]],
+        
          'HomePosition':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
