@@ -38,5 +38,14 @@
 
 The Commands and Attributes are shown in "table_copleycontrol.docx", which is still in progress. The result is similar with OmsVme58 Tango Cpp Class: http://hasyweb.desy.de/services/computing/Tango/pogo_html_docu/OmsVme58/
 
+5. How to create powerPMAC_TANGO DS with just xmi code in pogo? It is based on C++ code originally.
+powerPMAC_TANGO DS class can not be created directly with pogo. Because the pogo version is not the same.
+
+Frist, add pogoRevision="9.4" into the class. <classes name="PowerPMACAxes" pogoRevision="9.4">
+	Then use pogo to create powerPMAC_TANGO DS CLASS with the option Makefile. Then the c++ source files can be created in the folder. Then use "make" to create the powerPMAC_TANGO DS class DS. at the end, you will see PowerPMACAxes in the folder "~/DeviceServers". The command:"DeviceServers/PowerPMACAxes test" can be used later. All my c++ DS class such as Socket DS is also using the method. 
+
+
+
+
 
 	
