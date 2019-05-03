@@ -26,7 +26,7 @@
 # along with Tango.  If not, see <http://www.gnu.org/licenses/>.
 # 
 #
-#  $Author :      null$
+#  $Author :      nullSDD$
 #
 #  $Revision :    $
 #
@@ -67,85 +67,102 @@ class CopleyControl (PyTango.Device_4Impl):
         self.name = name
         CopleyControl.init_device(self)
         #----- PROTECTED REGION ID(CopleyControl.__init__) ENABLED START -----#
-        
+       
+       
         #----- PROTECTED REGION END -----#	//	CopleyControl.__init__
         
     def delete_device(self):
         self.debug_stream("In delete_device()")
         #----- PROTECTED REGION ID(CopleyControl.delete_device) ENABLED START -----#
-              
+        
         #----- PROTECTED REGION END -----#	//	CopleyControl.delete_device
 
     def init_device(self):
         self.debug_stream("In init_device()")
         self.get_device_properties(self.get_device_class())
-        self.attr_Port_read = ""
         self.attr_Acceleration_read = 0.0
-        self.attr_Position_read = 0.0
-        self.attr_Velocity_read = 0.0
-        self.attr_NodeID_read = 0      
         self.attr_Deceleration_read = 0.0
-        
-        #----- PROTECTED REGION ID(CopleyControl.init_device) ENABLED START -----#  
-        self.attr_FlagBacklash_read = 0        
-        self.attr_FlagMotorReady_read = 0
-        self.attr_CwLimit_read = 20000
-        self.attr_CcwLimit_read = -20000
-        self.attr_HomePosition_read = 15000
-        self.attr_BaseRate_read = 7000
-        self.attr_Conversion_read = 1000
-        print "In ", self.get_name(), "::init_device()"
-        self.dev_serial =  self.connectSerial()         
-        self.attr_NodeID_read = self.getNodeID()
-        #self.initControlParameters()  
-        # In case something needs to be added in init.
-        #----- PROTECTED REGION END -----#	//	Cself.attr_Timeout_read = 0opleyControl.init_device
+        self.attr_Position_read = 0.0
+        self.attr_SetPoint_read = 0.0
+        self.attr_Velocity_read = 0.0
+        self.attr_DialPosition_read = 0.0
+        self.attr_Conversion_read = 0.0
+        self.attr_SoftwareCwLimit_read = 0.0
+        self.attr_SoftwareCcwLimit_read = 0.0
+        self.attr_SoftwareCwDialLimit_read = 0.0
+        self.attr_SoftwareCcwDialLimit_read = 0.0
+        self.attr_ConversionSoftwareLimit_read = 0.0
+        self.attr_HomeOffset_read = 0.0
+        #----- PROTECTED REGION ID(CopleyControl.init_device) ENABLED START -----#
+        self.attr_Acceleration_read = 66800.0
+        self.attr_Deceleration_read = 66800.0
+        self.attr_SetPoint_read = 100000.0
+        self.attr_Velocity_read = 166667.0
+        self.attr_Conversion_read = 1000.0
+        self.attr_SoftwareCwLimit_read = 1000000.0
+        self.attr_SoftwareCcwLimit_read = -100000.0
+        self.attr_SoftwareCwDialLimit_read = 90.0
+        self.attr_SoftwareCcwDialLimit_read = -90.0
+        self.attr_ConversionSoftwareLimit_read = 10000.0
+        self.attr_HomeOffset_read = 1000.0
+        self.dev_serial = self.connectSerial()         
+        self.NodeID = self.getNodeID()
+        self.MaxVelocity = self.getMaxVelocity()
+       
+        #----- PROTECTED REGION END -----#	//	CopleyControl.init_device
 
     def always_executed_hook(self):
         self.debug_stream("In always_excuted_hook()")
         #----- PROTECTED REGION ID(CopleyControl.always_executed_hook) ENABLED START -----#
-        print "In ", self.get_name(), "::always_excuted_hook()"
+        
         #----- PROTECTED REGION END -----#	//	CopleyControl.always_executed_hook
 
     # -------------------------------------------------------------------------
     #    CopleyControl read/write attribute methods
     # -------------------------------------------------------------------------
-              
-    def read_Port(self, attr):
-        self.debug_stream("In read_Port()")
-        #----- PROTECTED REGION ID(CopleyControl.Port_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_Port()"        
-        dev = self.dev_serial
-        attr_Port_read = dev.Port
-        attr.set_value(attr_Port_read)       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Port_read
-         
+    
     def read_Acceleration(self, attr):
         self.debug_stream("In read_Acceleration()")
         #----- PROTECTED REGION ID(CopleyControl.Acceleration_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_Acceleration()"      
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xcc")
-        attr_Acceleration_read =  self.SendCommandGetResult(command)
-        #attr.set_value(int(self.attr_Acceleration_read))
+        attr.set_value(self.attr_Acceleration_read)
+        command = self.getParameterCommand("g r0xcc")
+        attr_Acceleration_read =  self.WriteRead(command)
         if attr_Acceleration_read != '':
-            attr.set_value(int(attr_Acceleration_read))         
+            attr.set_value(int(attr_Acceleration_read))   
         #----- PROTECTED REGION END -----#	//	CopleyControl.Acceleration_read
         
     def write_Acceleration(self, attr):
         self.debug_stream("In write_Acceleration()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Acceleration_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_Acceleration()", str(data)       
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0xcc", str(int(data)))
+        command = self.setParameterCommand("s r0xcc", str(int(data)))
         self.Write(command)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Acceleration_write        
-   
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Acceleration_write
+        
+    def read_Deceleration(self, attr):
+        self.debug_stream("In read_Deceleration()")
+        #----- PROTECTED REGION ID(CopleyControl.Deceleration_read) ENABLED START -----#
+        attr.set_value(self.attr_Deceleration_read)
+        command = self.getParameterCommand("g r0xcd")
+        attr_Deceleration_read =  self.WriteRead(command)
+        if attr_Deceleration_read != '':
+            attr.set_value(int(attr_Deceleration_read))  
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Deceleration_read
+        
+    def write_Deceleration(self, attr):
+        self.debug_stream("In write_Deceleration()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.Deceleration_write) ENABLED START -----#
+        command = self.setParameterCommand("s r0xcd", str(int(data)))
+        self.Write(command)
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Deceleration_write
+        
     def read_Position(self, attr):
         self.debug_stream("In read_Position()")
-        #----- PROTECTED REGION ID(CopleyControl.Position_read) ENABLED START -----# 
-        print "In ", self.get_name(), "::read_Position()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xca")
-        self.attr_Position_read =  self.SendCommandGetResult(command)
+        #----- PROTECTED REGION ID(CopleyControl.Position_read) ENABLED START -----#
+        
+        command = self.getParameterCommand("g r0x2d")
+        self.attr_Position_read =  self.WriteRead(command)
         if self.attr_Position_read != '':
             attr.set_value(int(self.attr_Position_read))     
         #----- PROTECTED REGION END -----#	//	CopleyControl.Position_read
@@ -154,39 +171,53 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In write_Position()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Position_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_Position()", str(data)
-        if data in range(int(self.attr_CcwLimit_read), int(self.attr_CwLimit_read)):
-            command = self.setParameterCommand(self.attr_NodeID_read, "s r0xca", str(int(data)))
+        expected_position = int(self.attr_SetPoint_read) + int(data)
+        if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
+            command = self.setParameterCommand("s r0xca", str(int(data)))
             self.Write(command)
         else:
             print "the input is out of range"
         #----- PROTECTED REGION END -----#	//	CopleyControl.Position_write
         
-    def read_DialPosition(self, attr):
-        self.debug_stream("In read_DialPosition()")
-        #----- PROTECTED REGION ID(CopleyControl.DialPosition_read) ENABLED START -----#
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xca")
-        self.attr_Position_read =  self.SendCommandGetResult(command)
-        self.attr_DialPosition_read = float(self.attr_Position_read) / float(self.attr_Conversion_read)
-        attr.set_value(self.attr_DialPosition_read)
+    def read_SetPoint(self, attr):
+        self.debug_stream("In read_SetPoint()")
+        #----- PROTECTED REGION ID(CopleyControl.SetPoint_read) ENABLED START -----#
         
-        #----- PROTECTED REGION END -----#	//	CopleyControl.DialPosition_read
-    def write_DialPosition(self, attr):
-        self.debug_stream("In write_Position()")
+        command = self.getParameterCommand("g r0xca")
+        self.attr_SetPoint_read =  self.WriteRead(command)
+        print self.attr_SetPoint_read
+        if self.attr_SetPoint_read != '':
+            attr.set_value(int(self.attr_SetPoint_read))    
+      
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SetPoint_read
+        
+    def write_SetPoint(self, attr):
+        self.debug_stream("In write_SetPoint()")
         data = attr.get_write_value()
-        #----- PROTECTED REGION ID(CopleyControl.Position_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_Position()", str(data)
-        data_new = float(self.attr_Conversion_read) * data
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0xca", str(int(data_new)))
-        self.Write(command)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Position_write
+        #----- PROTECTED REGION ID(CopleyControl.SetPoint_write) ENABLED START -----#
+        current_position = self.WriteRead(str(self.NodeID) + " g r0x2d")
+        expected_position = int(current_position) + int(data)
+        print "expected Position is ", expected_position, "position is ", self.attr_Position_read, "input is ", data
+        print("SetPoint:", data, "expected position: ", expected_position, "Ccwlimit: ", self.attr_SoftwareCcwLimit_read, "Cwlimit: ", self.attr_SoftwareCwLimit_read)
+        if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
+            print "the input is ok"
+            print int(data)
+            command = self.setParameterCommand("s r0xca", str(int(data)))
+            print command
+            self.Write(command)
+            self.attr_SetPoint_read = data 
+            attr.set_value(self.attr_SetPoint_read)
+        else:
+            print "the input is out of range"
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SetPoint_write
         
     def read_Velocity(self, attr):
         self.debug_stream("In read_Velocity()")
         #----- PROTECTED REGION ID(CopleyControl.Velocity_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_Velocity()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0x18")
-        attr_Velocity_read =  self.SendCommandGetResult(command)
+        attr.set_value(self.attr_Velocity_read)
+        command = self.getParameterCommand("g r0x18")
+        attr_Velocity_read =  self.WriteRead(command)
         if attr_Velocity_read != '':
             attr.set_value(int(attr_Velocity_read))
         #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_read
@@ -195,139 +226,185 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In write_Velocity()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Velocity_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_Velocity()", str(data) 
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0x18", str(int(data)))
+        command = self.setParameterCommand("s r0x18", str(int(data)))
         self.Write(command)
         #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_write
         
-    def read_BaseRate(self, attr):
-        self.debug_stream("In read_BaseRate()")
-        #----- PROTECTED REGION ID(CopleyControl.Velocity_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_BaseRate()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xcb")
-        attr_BaseRate_read =  self.SendCommandGetResult(command)
-        if attr_BaseRate_read != '':
-            attr.set_value(int(attr_BaseRate_read))
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_read
+    def read_DialPosition(self, attr):
+        self.debug_stream("In read_DialPosition()")
+        #----- PROTECTED REGION ID(CopleyControl.DialPosition_read) ENABLED START -----#
+        attr.set_value(self.attr_DialPosition_read)
+        command = self.getParameterCommand("g r0x2d")
+        self.attr_Position_read =  self.WriteRead(command)
+        self.attr_DialPosition_read = float(self.attr_Position_read) / float(self.attr_Conversion_read)
+        attr.set_value(self.attr_DialPosition_read)
         
-    def write_BaseRate(self, attr):
-        self.debug_stream("In write_BaseRate()")
+        #----- PROTECTED REGION END -----#	//	CopleyControl.DialPosition_read
+        
+    def write_DialPosition(self, attr):
+        self.debug_stream("In write_DialPosition()")
         data = attr.get_write_value()
-        #----- PROTECTED REGION ID(CopleyControl.Velocity_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_BaseRate()", str(data) 
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0xcb", str(int(data)))
-        self.Write(command)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_write
+        #----- PROTECTED REGION ID(CopleyControl.DialPosition_write) ENABLED START -----#
+        attr.set_value(data)
+        expected_position = float(self.attr_Conversion_read) * data
+        data_new = (data - self.attr_DialPosition_read) * float(self.attr_Conversion_read) 
+        if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
+            command = self.setParameterCommand("s r0xca", str(int(data_new)))
+            self.Write(command)
+        else:
+            print("DialPosition is out of range.")
+        #----- PROTECTED REGION END -----#	//	CopleyControl.DialPosition_write
         
     def read_Conversion(self, attr):
         self.debug_stream("In read_Conversion()")
-        #----- PROTECTED REGION ID(CopleyControl.Step_per_unit_read) ENABLED START -----#
-       
+        #----- PROTECTED REGION ID(CopleyControl.Conversion_read) ENABLED START -----#
         attr.set_value(self.attr_Conversion_read)
         
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Step_per_unit_read
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Conversion_read
         
     def write_Conversion(self, attr):
         self.debug_stream("In write_Conversion()")
         data = attr.get_write_value()
-        #----- PROTECTED REGION ID(CopleyControl.Step_per_unit_write) ENABLED START -----#
+        #----- PROTECTED REGION ID(CopleyControl.Conversion_write) ENABLED START -----#
         self.attr_Conversion_read = data
-        #attr.set_value(self.attr_Conversion_read)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Step_per_unit_write
-    
-    def read_NodeID(self, attr):
-        self.debug_stream("In read_NodeID()")
-        #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_NodeID()"
-        attr.set_value(self.attr_NodeID_read)        
-        #----- PROTECTED REGION END -----#	//	CopleyControl.NodeID_read
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Conversion_write
         
-    def read_FlagBacklash(self, attr):
-        self.debug_stream("In read_FlagBacklash()")
-        #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_FlagBacklash()"
-        attr.set_value(self.attr_FlagBacklash_read)        
-        #----- PROTECTED REGION END -----#	//	CopleyControl.NodeID_read
+    def read_SoftwareCwLimit(self, attr):
+        self.debug_stream("In read_SoftwareCwLimit()")
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCwLimit_read) ENABLED START -----#
+        #attr.set_value(self.attr_SoftwareCwLimit_read)
+        command = self.getParameterCommand("g r0xb8")
+        self.attr_SoftwareCwLimit_read =  self.WriteRead(command)
+        attr.set_value(int(self.attr_SoftwareCwLimit_read))
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwLimit_read
         
-    def read_FlagMotorReady(self, attr):
-        self.debug_stream("In read_FlagMotorReady()")
-        #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_FlagMotorReady()"
-        motion = self.CheckMove()
-        if motion == 1:
-            self.attr_FlagMotorReady_read = 1
-        attr.set_value(self.attr_FlagMotorReady_read)      
-        #----- PROTECTED REGION END -----#	//	CopleyControl.NodeID_read
+    def write_SoftwareCwLimit(self, attr):
+        self.debug_stream("In write_SoftwareCwLimit()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCwLimit_write) ENABLED START -----#
+        print("SoftwareCwLimit:", data, "current position: ", self.attr_Position_read, "Ccwlimit: ", self.attr_SoftwareCcwLimit_read, "Cwlimit: ", self.attr_SoftwareCwLimit_read)
+        expected_position = int(self.attr_Position_read) + int(self.attr_SetPoint_read)
+        if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(data)):
+            self.attr_SoftwareCwLimit_read = data
+            
+            command = self.setParameterCommand("s r0xb8", str(int(data)))
+            self.Write(command)
+            attr.set_value(int(self.attr_SoftwareCwLimit_read)) 
+        else:
+            print("SoftwareCwLimit must be higher than Position plus SetPoint")
+            
+            
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwLimit_write
         
-    def read_CwLimit(self, attr):
-        self.debug_stream("In read_CwLimit()")
-        #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_CwLimit()"
-        #command = self.getParameterCommand(self.attr_NodeID_read, "g r0x2d")
-        #self.attr_CwLimit_read =  self.SendCommandGetResult(command)
-        if self.attr_CwLimit_read != '':
-            attr.set_value(int(self.attr_CwLimit_read))     
+    def read_SoftwareCcwLimit(self, attr):
+        self.debug_stream("In read_SoftwareCcwLimit()")
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwLimit_read) ENABLED START -----#
+        command = self.getParameterCommand("g r0xb9")
+        self.attr_SoftwareCcwLimit_read =  self.WriteRead(command)
+        
+        attr.set_value(-(int(self.attr_SoftwareCcwLimit_read)))
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwLimit_read
+        
+    def write_SoftwareCcwLimit(self, attr):
+        self.debug_stream("In write_SoftwareCcwLimit()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwLimit_write) ENABLED START -----#
+        expected_position = int(self.attr_Position_read) + int(self.attr_SetPoint_read)
+        if expected_position in range(int(data), int(self.attr_SoftwareCwLimit_read)):
+            self.attr_SoftwareCcwLimit_read = data
+            command = self.setParameterCommand("s r0xb9", str(int(data)))
+            self.Write(command)
+            attr.set_value(int(self.attr_SoftwareCcwLimit_read)) 
+        else:
+            print("SoftwareCcwLimit must be smaller than Position plus SetPoint")
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwLimit_write
+        
+    def read_SoftwareCwDialLimit(self, attr):
+        self.debug_stream("In read_SoftwareCwDialLimit()")
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCwDialLimit_read) ENABLED START -----#
+        attr.set_value(self.attr_SoftwareCwDialLimit_read)
+        self.attr_SoftwareCwDialLimit_read = float(self.attr_SoftwareCwLimit_read) / float(self.attr_ConversionSoftwareLimit_read)
+        if self.attr_SoftwareCwDialLimit_read != '':
+            attr.set_value(int(self.attr_SoftwareCwDialLimit_read))     
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwDialLimit_read
+        
+    def write_SoftwareCwDialLimit(self, attr):
+        self.debug_stream("In write_SoftwareCwDialLimit()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCwDialLimit_write) ENABLED START -----#
+        data_new = float(self.attr_ConversionSoftwareLimit_read) * data
+        self.attr_SoftwareCwLimit_read = data_new
+        
+        self.attr_SoftwareCwDialLimit_read = data
+        attr.set_value(data) 
        
-        #----- PROTECTED REGION END -----#	//	CopleyControl.NodeID_read
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwDialLimit_write
         
-    def read_CcwLimit(self, attr):
-        self.debug_stream("In read_CcwLimit()")
-        #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_CcwLimit()"
-        #command = self.getParameterCommand(self.attr_NodeID_read, "g r0x2d")
-        #self.attr_CwLimit_read =  self.SendCommandGetResult(command)
-        if self.attr_CwLimit_read != '':
-            self.attr_CcwLimit_read  = -int(self.attr_CwLimit_read)
-            attr.set_value(self.attr_CcwLimit_read)       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.NodeID_read
+    def read_SoftwareCcwDialLimit(self, attr):
+        self.debug_stream("In read_SoftwareCcwDialLimit()")
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwDialLimit_read) ENABLED START -----#
+        attr.set_value(self.attr_SoftwareCcwDialLimit_read)
+        self.attr_SoftwareCcwDialLimit_read = float(self.attr_SoftwareCcwLimit_read) / float(self.attr_ConversionSoftwareLimit_read)
+        if self.attr_SoftwareCcwLimit_read != '':
+            attr.set_value(-(int(self.attr_SoftwareCcwDialLimit_read)))     
+       
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwDialLimit_read
+        
+    def write_SoftwareCcwDialLimit(self, attr):
+        self.debug_stream("In write_SoftwareCcwDialLimit()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwDialLimit_write) ENABLED START -----#
+        data_new = float(self.attr_ConversionSoftwareLimit_read) * data
+        self.attr_SoftwareCcwLimit_read = -(int(data_new))
+        
+        self.attr_SoftwareCcwDialLimit_read = data
+        attr.set_value(data) 
+        #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwDialLimit_write
+        
+    def read_ConversionSoftwareLimit(self, attr):
+        self.debug_stream("In read_ConversionSoftwareLimit()")
+        #----- PROTECTED REGION ID(CopleyControl.ConversionSoftwareLimit_read) ENABLED START -----#
+        attr.set_value(self.attr_ConversionSoftwareLimit_read)
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.ConversionSoftwareLimit_read
+        
+    def write_ConversionSoftwareLimit(self, attr):
+        self.debug_stream("In write_ConversionSoftwareLimit()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.ConversionSoftwareLimit_write) ENABLED START -----#
+        self.attr_ConversionSoftwareLimit_read = data
+        #----- PROTECTED REGION END -----#	//	CopleyControl.ConversionSoftwareLimit_write
+        
+    def read_HomeOffset(self, attr):
+        self.debug_stream("In read_HomeOffset()")
+        #----- PROTECTED REGION ID(CopleyControl.HomeOffset_read) ENABLED START -----#
+        attr.set_value(self.attr_HomeOffset_read)
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.HomeOffset_read
+        
+    def write_HomeOffset(self, attr):
+        self.debug_stream("In write_HomeOffset()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.HomeOffset_write) ENABLED START -----#
+        self.attr_HomeOffset_read = data
+        attr.set_value(self.attr_HomeOffset_read) 
+        #----- PROTECTED REGION END -----#	//	CopleyControl.HomeOffset_write
+        
     
-    def read_HomePosition(self, attr):
-        self.debug_stream("In read_HomePosition()")
-        #----- PROTECTED REGION ID(CopleyControl.NodeID_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_HomePosition()"
-        attr.set_value(self.attr_HomePosition_read)       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.NodeID_read
-        
-    def write_HomePosition(self, attr):
-        self.debug_stream("In write_Position()")
-        data = attr.get_write_value()
-        #----- PROTECTED REGION ID(CopleyControl.Position_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_Position()", str(data)
-        self.attr_HomePosition_read = data
-        attr.set_value(self.attr_HomePosition_read) 
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Position_write
-        
-        
-    def read_Deceleration(self, attr):
-        self.debug_stream("In read_Deceleration()")
-        #----- PROTECTED REGION ID(CopleyControl.Deceleration_read) ENABLED START -----#
-        print "In ", self.get_name(), "::read_Deceleration()"
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xcd")
-        attr_Deceleration_read =  self.SendCommandGetResult(command)
-        if attr_Deceleration_read != '':
-            attr.set_value(int(attr_Deceleration_read))       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Deceleration_read
-        
-    def write_Deceleration(self, attr):       
-        self.debug_stream("In write_Deceleration()")
-        data = attr.get_write_value()
-        #----- PROTECTED REGION ID(CopleyControl.Deceleration_write) ENABLED START -----#
-        print "In ", self.get_name(), "::write_Deceleration()", str(data)
-        command = self.setParameterCommand(self.attr_NodeID_read, "s r0xcd", str(int(data)))
-        self.Write(command)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Deceleration_write
-        
+    
             
     def read_attr_hardware(self, data):
         self.debug_stream("In read_attr_hardware()")
         #----- PROTECTED REGION ID(CopleyControl.read_attr_hardware) ENABLED START -----#
+        
         #----- PROTECTED REGION END -----#	//	CopleyControl.read_attr_hardware
+
 
     # -------------------------------------------------------------------------
     #    CopleyControl command methods
-    # -------------------------------------------------------------------------  
+    # -------------------------------------------------------------------------
     
-            
     def dev_state(self):
         """ This command gets the device state (stored in its device_state data member) and returns it to the caller.
         :return: Device state
@@ -336,7 +413,7 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In dev_state()")
         argout = PyTango.DevState.UNKNOWN
         #----- PROTECTED REGION ID(CopleyControl.State) ENABLED START -----#
-        print "In ", self.get_name(), "::dev_state()"
+        
         #----- PROTECTED REGION END -----#	//	CopleyControl.State
         if argout != PyTango.DevState.ALARM:
             PyTango.Device_4Impl.dev_state(self)
@@ -350,131 +427,60 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In dev_status()")
         argout = ""
         #----- PROTECTED REGION ID(CopleyControl.Status) ENABLED START -----#
-        print "In ", self.get_name(), "::dev_status()"
-        command_DriveEventStatus = self.getParameterCommand(self.attr_NodeID_read, "g r0xa0")
-        DriveEventStatus = self.SendCommandGetResult(command_DriveEventStatus)   
+        command_DriveEventStatus = self.getParameterCommand("g r0xa0")
+        DriveEventStatus = self.WriteRead(command_DriveEventStatus)   
         if DriveEventStatus == '':
             argout = "Status is OFF"
         elif DriveEventStatus != "0"  and DriveEventStatus != "":
-            argout = "Status is MOVING"    
+            self.clearLatchedStatus()
+            value = self.readLatchedEventStatus()
+            if int(value) == int(DriveEventStatus):
+                if (value&512)<>0:
+                    argout = "Status is STANDBY" 
+                    print"Positive limit switch active.(Bit 9 is 1)"
+                elif (value&1024)<>0:
+                    argout = "Status is STANDBY" 
+                    print("Negative limit switch active.(Bit 10 is 1)")
+                elif (value&2048)<>0:
+                    argout = "Status is STANDBY" 
+                    print("Enable input not active.(Bit 11 is 1)")    
+                elif (value&65536)<>0:
+                    argout = "Status is STANDBY" 
+                    print("Positive software limit condition.(Bit 16 is 1)")   
+                elif (value&131072)<>0:
+                    argout = "Status is STANDBY"
+                    print("Negative software limit condition.(Bit 17 is 1)")
+                elif (value&67108864)<>0:
+                    argout = "Status is STANDBY" 
+                    print("Home switch is active.(Bit 26 is 1)")
+                else:
+                    argout = "Status is MOVING" 
+                    print("Other problems occured.")
+            else:
+                argout = "Status is MOVING" 
+                print("Status is MOVING")    
+               
         elif DriveEventStatus == "0":
             argout = "Status is STANDBY" 
         else:
             argout = "Status is FAULT" 
+        self.argout = argout
         #----- PROTECTED REGION END -----#	//	CopleyControl.Status
-        self.set_status(argout)
+        self.set_status(self.argout)
         self.__status = PyTango.Device_4Impl.dev_status(self)
         return self.__status
         
-    
     def Write(self, argin):
-        """ This command gets the input and write the input to the serial line. 
-        :param argin: String
-        :type argin: PyTango.DevString
-        """
-        self.debug_stream("In Write()")
-        #----- PROTECTED REGION ID(CopleyControl.Write) ENABLED START -----#
-        print "In ", self.get_name(), "::Write()", str(argin)       
-        dev = self.dev_serial
-        dev.Write(argin)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Write
-    
-    def ResetMotor(self):
-        """ Reset the motor
-        """
-        self.debug_stream("In ResetMotor()")
-        #----- PROTECTED REGION ID(CopleyControl.ResetMotor) ENABLED START -----#
-        print "In ", self.get_name(), "::ResetMotor()"
-        nodeID = self.attr_NodeID_read
-        self.Write("{} r\n".format(str(nodeID)))
-      
-        #----- PROTECTED REGION END -----#	//	CopleyControl.ResetMotor
-        
-    def GetPosition(self):
         """ 
-         :rtype: PyTango.DevDouble
-        """
-        self.debug_stream("In GetPosition()")
-        argout = 0.0
-        #----- PROTECTED REGION ID(CopleyControl.GetPosition) ENABLED START -----#
-        print "In ", self.get_name(), "::GetPosition()"
-        
-        command = self.getParameterCommand(self.attr_NodeID_read, "g r0xca")
-        self.attr_Position_read =  self.SendCommandGetResult(command)
-        argout = int(self.attr_Position_read)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.GetPosition
-        return argout
-    
-    def StopMove(self):
-        """ Stops the motion of the device.
-        """
-        self.debug_stream("In StopMove()")
-        #----- PROTECTED REGION ID(CopleyControl.StopMove) ENABLED START -----#
-        print "In ", self.get_name(), "::StopMove()"
-        nodeID = self.attr_NodeID_read
-        self.Write("{} t 0\n".format(str(nodeID)))
-        #----- PROTECTED REGION END -----#	//	CopleyControl.StopMove
-        
-    def GetRegister(self, argin):
-        """ 
-        :type argin: PyTango.DevLong
-        :rtype: PyTango.DevString
-        """
-        self.debug_stream("In GetRegister()")
-        argout = ""
-        #----- PROTECTED REGION ID(CopleyControl.GetRegister) ENABLED START -----#
-        print "In ", self.get_name(), "::GetRegister()"
-       
-        command = str(self.attr_NodeID_read) + " i r" + str(argin) 
-      
-        argout = self.SendCommandGetResult(command)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.GetRegister
-        return argout
-      
-    
-    def SetRegister(self, argin):
-        """ 
-        :type argin: PyTango.DevVarStringArray
-        
-        """
-        self.debug_stream("In SetRegister()")
-      
-        #----- PROTECTED REGION ID(CopleyControl.CheckMove) ENABLED START -----#
-        print "In ", self.get_name(), "::SetRegister()"
-        register_id = argin[0]
-        value = argin[1]
-        command = str(self.attr_NodeID_read) + " i r" + str(register_id) + " " + str(value)
-        self.Write(command)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.CheckMove(self):
-      
-    
-    def CheckMove(self):
-        """ 
-        :rtype: PyTango.DevLong
-        """
-        self.debug_stream("In CheckMove()")
-        argout = 0
-        #----- PROTECTED REGION ID(CopleyControl.CheckMove) ENABLED START -----#
-        print "In ", self.get_name(), "::CheckMove()"
-        status = str(self.dev_status())
-        if status == "Status is MOVING":
-            argout = 1
-        else:
-            pass
-        #----- PROTECTED REGION END -----#	//	CopleyControl.CheckMove(self):
-        return argout
-
-    def SendCommandGetResult(self, argin):
-        """ Sends input to serial line and gets the number in the result of the input.
         :param argin: 
         :type argin: PyTango.DevString
         :rtype: PyTango.DevString
         """
-        self.debug_stream("In SendCommandGetResult()")
+        self.debug_stream("In Write()")
         argout = ""
-        #----- PROTECTED REGION ID(CopleyControl.SendCommandGetResult) ENABLED START -----#
+        #----- PROTECTED REGION ID(CopleyControl.Write) ENABLED START -----#
         raw_result = ""
-        print "In ", self.get_name(), "::SendCommandGetResult()", str(argin)    
+        print "In ", self.get_name(), "::WriteRead()", str(argin)    
         dev = self.dev_serial       
         dev.FlushInput()
         dev.Write(argin)
@@ -487,185 +493,151 @@ class CopleyControl (PyTango.Device_4Impl):
                 break
             if data == '\r': # CR -> ignored
                 continue     
-            raw_result += data            
-        new_result = filter(str.isdigit, raw_result)
-        result = ''.join(list(new_result)) 
-        if result != '' and result != '033' and result != '33':
-            argout = result            
-        print "Result: ", str(argout)
-        #----- PROTECTED REGION END -----#	//	CopleyControl.SendCommandGetResult
-        return argout    
-    
-    def CompleteMove(self):
+            raw_result += data         
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Write
+        return raw_result
+        
+    def StopMove(self):
+        """ 
+        """
+        self.debug_stream("In StopMove()")
+        #----- PROTECTED REGION ID(CopleyControl.StopMove) ENABLED START -----#
+        self.Write("{} t 0\n".format(str(self.NodeID)))
+        #----- PROTECTED REGION END -----#	//	CopleyControl.StopMove
+        
+    def ResetMotor(self):
+        """ 
+        """
+        self.debug_stream("In ResetMotor()")
+        #----- PROTECTED REGION ID(CopleyControl.ResetMotor) ENABLED START -----#
+        self.Write("{} r\n".format(str(self.NodeID)))
+        #----- PROTECTED REGION END -----#	//	CopleyControl.ResetMotor
+        
+    def WriteRead(self, argin):
+        """ 
+        :param argin: 
+        :type argin: PyTango.DevString
+        :rtype: PyTango.DevString
+        """
+        self.debug_stream("In WriteRead()")
+        argout = ""
+        #----- PROTECTED REGION ID(CopleyControl.WriteRead) ENABLED START -----#
+        raw_result = ""
+        print "In ", self.get_name(), "::WriteRead()", str(argin)    
+        dev = self.dev_serial       
+        dev.FlushInput()
+        dev.Write(argin)
+        time.sleep(0.3)
+        while True:                      
+            data = dev.Read(1) 
+            if not data: # no data means errors or timeout
+                break
+            if data == "\n": # LF -> expected
+                break
+            if data == '\r': # CR -> ignored
+                continue     
+            raw_result += data          
+        
+        #new_result = filter(str.isdigit, raw_result)
+        #result = ''.join(list(new_result)) 
+        #if result != '' and result != '033' and result != '33':
+            #argout = result            
+        #print "Result: ", str(argout)
+        
+        
+        argout = raw_result[2:]
+        #----- PROTECTED REGION END -----#	//	CopleyControl.WriteRead
+        return argout
+        
+    def MoveToCwLimit(self):
         """ 
         :rtype: PyTango.DevLong
         """
-        self.debug_stream("In CompleteMove()")
+        self.debug_stream("In MoveToCwLimit()")
         argout = 0
-        #----- PROTECTED REGION ID(CopleyControl.CompleteMove) ENABLED START -----#
-        print "In ", self.get_name(), "::CompleteMove()"    
-        if self.attr_FlagBacklash_read == 1:
-            argout = 1
-            print "Here is to do backlash after the move."
-        return argout 
-            
-        #----- PROTECTED REGION END -----#	//	CopleyControl.CompleteMove
-    
-     
-    def StartMove(self):
-        """ 
-         :rtype: PyTango.DevLong
-        """
-        self.debug_stream("In StartMove()")
-        argout = 0
-        #----- PROTECTED REGION ID(CopleyControl.Move) ENABLED START -----#
-        print "In ", self.get_name(), "::StartMove()"    
-        if self.attr_FlagMotorReady_read == 0:
-            status = str(self.dev_status())
-            print status
-            if status == "Status is STANDBY":
-                print str(self.dev_status())
-                self.Move()
-                argout = 1
-
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Move
+        #----- PROTECTED REGION ID(CopleyControl.MoveToCwLimit) ENABLED START -----#
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.MoveToCwLimit
         return argout
-    
-   
-    
+        
     def MoveToCcwLimit(self):
         """ 
-         :rtype: PyTango.DevLong
+        :rtype: PyTango.DevLong
         """
         self.debug_stream("In MoveToCcwLimit()")
         argout = 0
-        #----- PROTECTED REGION ID(CopleyControl.Move) ENABLED START -----#
-        print "In ", self.get_name(), "::MoveToCcwLimit()" 
-        status = str(self.dev_status())
-        print status
-        if status == "Status is STANDBY":
-            print str(self.dev_status())
-            CcwLimitPosition = self.attr_CcwLimit_read 
-            command_pos = self.setParameterCommand(self.attr_NodeID_read, "s r0xca", int(CcwLimitPosition))     
-            command_move = self.setParameterCommand(self.attr_NodeID_read, "t", 1)
-            command = str(command_pos) + str(command_move)
-            self.Write(command)
-       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Move
+        #----- PROTECTED REGION ID(CopleyControl.MoveToCcwLimit) ENABLED START -----#
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.MoveToCcwLimit
         return argout
-    
-    def MoveToCwLimit(self):
-        """ 
-         :rtype: PyTango.DevLong
-        """
-        self.debug_stream("In MoveToCwLimit()")
-        argout = 0
-        #----- PROTECTED REGION ID(CopleyControl.Move) ENABLED START -----#
-        print "In ", self.get_name(), "::MoveToCwLimit()" 
-        status = str(self.dev_status())
-        print status
-        if status == "Status is STANDBY":
-            print str(self.dev_status())
-            CwLimitPosition = self.attr_CwLimit_read 
-            command_pos = self.setParameterCommand(self.attr_NodeID_read, "s r0xca", int(CwLimitPosition))        
-            command_move = self.setParameterCommand(self.attr_NodeID_read, "t", 1)
-            command = str(command_pos) + str(command_move)
-            self.Write(command)
-       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Move
-        return argout
-    
+        
     def MoveHome(self):
         """ 
-         :rtype: PyTango.DevLong
+        :rtype: PyTango.DevLong
         """
         self.debug_stream("In MoveHome()")
         argout = 0
-        #----- PROTECTED REGION ID(CopleyControl.Move) ENABLED START -----#
-        print "In ", self.get_name(), "::MoveHome()" 
+        #----- PROTECTED REGION ID(CopleyControl.MoveHome) ENABLED START -----#
         status = str(self.dev_status())
         print status
-        if status == "Status is STANDBY":
-            print str(self.dev_status())
-            HomePosition = self.attr_HomePosition_read 
-            command_homingMethod = self.setParameterCommand(self.attr_NodeID_read, "s r0xc2", 512)        
-            command_homingVelocity = self.setParameterCommand(self.attr_NodeID_read, "s r0xc4", 3333)        
-            command_homeOffset = self.setParameterCommand(self.attr_NodeID_read, "s r0xc6", int(self.attr_HomePosition_read))        
-            command_desiredState = self.setParameterCommand(self.attr_NodeID_read, "s r0x24", 21)                 
-            command_homing = self.setParameterCommand(self.attr_NodeID_read, "t", 2)
-            command = str(command_homingMethod) + str(command_homingVelocity)+ str(command_homeOffset) + str(command_desiredState) + str(command_homing) 
-            
+        position_1 = self.WriteRead(str(self.NodeID) + " g r0x2d")
+        print position_1
+        limitValue = self.checkLimit()       
+        print limitValue
+        if limitValue == 0:
+            command = self.setHomeParameters(513)
             self.Write(command)
-            
-        else:
-            print "Check Device State please."
-            argout = 1
+            argou = 0
+        elif limitValue == 1:
+            command = self.setHomeParameters(529)
+            self.Write(command)
+            argout = 1                        
+        elif limitValue == 2:
+            command = self.setHomeParameters(513)
+            self.Write(command)
+            argout = 2
         return argout
-   
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Move
+        #----- PROTECTED REGION END -----#	//	CopleyControl.MoveHome
+        return argout
         
-    
+    def Calibrate(self, argin):
+        """ 
+        :param argin: 
+        :type argin: PyTango.DevDouble
+        """
+        self.debug_stream("In Calibrate()")
+        #----- PROTECTED REGION ID(CopleyControl.Calibrate) ENABLED START -----#
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Calibrate
+        
     def Move(self):
-        """ Triggers the device to move.
+        """ 
         """
         self.debug_stream("In Move()")
         #----- PROTECTED REGION ID(CopleyControl.Move) ENABLED START -----#
-        print "In ", self.get_name(), "::Move()"    
         status = str(self.dev_status())
         print status
+        print self.MaxVelocity
+        current_position = self.WriteRead(str(self.NodeID) + " g r0x2d")
+        expected_position = int(current_position) + int(self.attr_SetPoint_read)
         if status == "Status is STANDBY":
-            print str(self.dev_status())
-            command_move = self.setParameterCommand(self.attr_NodeID_read, "t", 1)
-            self.Write(str(command_move))
+            if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
+                print  "expected_position ", expected_position, " is among the range from ", int(self.attr_SoftwareCcwLimit_read), " to ", int(self.attr_SoftwareCwLimit_read)
+                command_move = self.setParameterCommand( "t", 1)
+                self.setMoveParameters(31, 256, self.attr_SetPoint_read, self.MaxVelocity,  self.attr_Acceleration_read, self.attr_Deceleration_read)
+                self.Write(str(command_move))
+                
+            else:
+                 print("Can not move, expected position is out of range.")
+                                                         
+
         else:
-            print "Check Device State please."
+            print("Check Device State please.")
         #----- PROTECTED REGION END -----#	//	CopleyControl.Move
-    
         
 
     #----- PROTECTED REGION ID(CopleyControl.programmer_methods) ENABLED START -----#
-    def initControlParameters(self, desired_state, trajectory_profile_mode, position_desired, velocity_desired, acceleration_desired, deceleration_desired):
-        """ Sets Programmed Position Mode, Trajectory Profile Mode, position, velocity, acceleration, deceleration.       
-        """
-        print "In ", self.get_name(), "::initControlParameters()"
-        nodeID = self.attr_NodeID_read
-        command_state = self.setParameterCommand(nodeID, "s r0x24", int(desired_state))
-        command_profile = self.setParameterCommand(nodeID, "s r0xc8", int(trajectory_profile_mode))
-        command_pos = self.setParameterCommand(nodeID, "s r0xca", int(position_desired))
-        command_vel = self.setParameterCommand(nodeID, "s r0xcb", int(velocity_desired))
-        command_acc = self.setParameterCommand(nodeID, "s r0xcc", int(acceleration_desired))
-        command_dec = self.setParameterCommand(nodeID, "s r0xcd", int(deceleration_desired))
-        command = command_state + command_profile + command_vel + command_acc + command_dec + command_pos 
-        self.Write(command)
-        
-    def get_state(self):
-        """ gets the device state using Drive Event Status command."""
-        nodeID = self.attr_NodeID_read
-        command_DriveEventStatus = self.getParameterCommand(nodeID, "g r0xa0")        
-        DriveEventStatus = self.SendCommandGetResult(command_DriveEventStatus)  
-        if DriveEventStatus == '':
-            argout = PyTango.DevState.OFF
-        elif DriveEventStatus != '0' and DriveEventStatus != '':
-            argout = PyTango.DevState.MOVING   
-        elif DriveEventStatus == '0':
-            argout = PyTango.DevState.STANDBY
-        else:
-            argout = PyTango.DevState.FAULT
-        return argout
-        self.set_state(argout)   
-   
-       
-    def setParameterCommand(self, nodeID, command, data):
-        """ return the Set Command with nodeID, command and data for copley control
-        """
-        return '{} {} {}\n'.format(str(int(nodeID)), command, str(int(data)))
-            
-    def getParameterCommand(self, nodeID, command):
-        """ return the Get Command with nodeID, command for copley control
-        """
-        return '{} {}\n'.format(str(int(nodeID)), command)
-       
-   
     def connectSerial(self):    
         """ connects with the pyserial device and open the pyserial state.
         """
@@ -686,10 +658,129 @@ class CopleyControl (PyTango.Device_4Impl):
         """ gets the node id from the device properties.
         """
         db = PyTango.Database()
-        dict_nodeID = db.get_device_property(str(self.name),"node_id")
-        return int(dict_nodeID["node_id"][0])
+        dict_nodeID = db.get_device_property(str(self.name),"NodeId")
+        return int(dict_nodeID["NodeId"][0])
     
-  
+    def getMaxVelocity(self):
+        """ gets the max Vel from the device properties.
+        """
+        db = PyTango.Database()
+        dict_MaxVel = db.get_device_property(str(self.name),"MaxVelocity")
+        return int(dict_MaxVel["MaxVelocity"][0])
+    
+    def get_state(self):
+        """ gets the device state using Event Status command."""
+        
+        command_DriveEventStatus = self.getParameterCommand("g r0xa0")        
+        DriveEventStatus = self.WriteRead(command_DriveEventStatus)  
+        if DriveEventStatus == '':
+            argout = PyTango.DevState.OFF
+        elif DriveEventStatus != '0' and DriveEventStatus != '':
+            #argout = PyTango.DevState.MOVING       
+            self.clearLatchedStatus()
+            value = self.readLatchedEventStatus()
+            if int(value) == int(DriveEventStatus):  
+                if (value&512)<>0:
+                    argout = PyTango.DevState.STANDBY
+                    print("Positive limit switch is active")  
+                elif (value&67108864)<>0:
+                    argout = PyTango.DevState.STANDBY
+                    print("motor2 rest status")
+                elif (value&1024)<>0:
+                    argout = PyTango.DevState.STANDBY
+                    print("Negative limit switch is active")
+                elif (value&2048)<>0:
+                    argout = PyTango.DevState.STANDBY
+                    print("Enable input not active")  
+                elif (value&65536)<>0:
+                    argout = PyTango.DevState.STANDBY
+                    print("Enable input not active")       
+                elif (value&131072)<>0:
+                    argout = PyTango.DevState.STANDBY
+                    print("Something unknown stays")
+                else:
+                    argout = PyTango.DevState.MOVING
+                    print("Other problems occured.")
+            else:
+                argout = PyTango.DevState.MOVING
+                print("State is MOVING")    
+            
+        elif DriveEventStatus == '0':
+            argout = PyTango.DevState.STANDBY        
+        else:
+            argout = PyTango.DevState.FAULT
+        return argout
+        self.set_state(argout)
+        
+    def checkLimit(self):
+        self.clearLatchedStatus()
+        value = self.readLatchedEventStatus()
+        print value
+        if int(value) == 0 or (int(value)&131072)<>0 or (int(value)&65536)<>0 or (int(value)&67108864)<>0:  
+            return 0
+            print("NO limit switch is active")       
+        elif (int(value)&512)<>0:
+            return 1
+            print("Positive limit switch is active")                  
+        elif (int(value)&1024)<>0:
+            return 2 
+            print("Negative limit switch is active")
+            
+    def setHomeParameters(self, homingMethod):
+        HomeOffset = self.attr_HomeOffset_read 
+        command_desiredState = self.setParameterCommand("s r0x24", 31)  
+        command_homingMethod = self.setParameterCommand("s r0xc2", homingMethod)  
+        command_FastVelocity = self.setParameterCommand("s r0xc3", 16667)  
+        command_SlowVelocity = self.setParameterCommand("s r0xc4", 3333)        
+        command_Acceleration = self.setParameterCommand("s r0xc5", 6800)   
+        command_homeOffset = self.setParameterCommand("s r0xc6", int(HomeOffset))   
+        command_CurrentLimit= self.setParameterCommand("s r0xc7", 19)        
+        command_TrajectoryProfileMode = self.setParameterCommand("s r0xc8", 0)         
+        command_PositiveSoftwareLimit = self.setParameterCommand( "s r0xb8", 20000)        
+        command_NegativeSoftwareLimit= self.setParameterCommand( "s r0xb9", 0)        
+        command_Position = self.setParameterCommand("s r0xca", 0)
+        command_homing = self.setParameterCommand("t", 2)
+        
+        command = str(command_desiredState) + str(command_homingMethod) + str(command_FastVelocity)+ str(command_SlowVelocity) + str(command_Acceleration) + str(command_homeOffset) + str(command_CurrentLimit) + str(command_TrajectoryProfileMode)+ str(command_PositiveSoftwareLimit) +  str(command_NegativeSoftwareLimit) + str(command_Position) + str(command_homing)
+        return command 
+    
+    def setMoveParameters(self, desired_state, trajectory_profile_mode, position_desired, velocity_desired, acceleration_desired, deceleration_desired):
+        """ Sets Programmed Position Mode, Trajectory Profile Mode, position, velocity, acceleration, deceleration.       
+        """
+        print "In ", self.get_name(), "::setMoveParameters()"
+       
+        command_state = self.setParameterCommand( "s r0x24", int(desired_state))
+        command_profile = self.setParameterCommand( "s r0xc8", int(trajectory_profile_mode))
+        command_pos = self.setParameterCommand( "s r0xca", int(position_desired))
+        command_vel = self.setParameterCommand( "s r0xcb", int(velocity_desired))
+        command_acc = self.setParameterCommand( "s r0xcc", int(acceleration_desired))
+        command_dec = self.setParameterCommand( "s r0xcd", int(deceleration_desired))
+
+        command = command_state + command_profile + command_vel + command_acc + command_dec + command_pos
+        print command
+        self.Write(command)
+        
+    def readLatchedEventStatus(self):
+        return int(self.WriteRead(str(self.NodeID) + " g r0xa1"))
+    
+    def clearLatchedStatus(self):
+        value = self.WriteRead(str(self.NodeID) + " g r0xa1")
+        print(value)
+        command = str(self.NodeID) + " s r0xa1 " + str(value)
+        print(command)
+        self.WriteRead(str(command))   
+ 
+    
+    def setParameterCommand(self, command, data):
+        """ return the Set Command with nodeID, command and data for copley control
+        """
+        return '{} {} {}\n'.format(str(int(self.NodeID)), command, str(int(data)))
+            
+    def getParameterCommand(self, command):
+        """ return the Get Command with nodeID, command for copley control
+        """
+        return '{} {}\n'.format(str(int(self.NodeID)), command)
+       
         
     #----- PROTECTED REGION END -----#	//	CopleyControl.programmer_methods
 
@@ -702,148 +793,27 @@ class CopleyControlClass(PyTango.DeviceClass):
 
     #    Class Properties
     class_property_list = {
+        'Description':
+            [PyTango.DevString, 
+             '',
+            [] ],
         }
 
 
     #    Device Properties
     device_property_list = {
-       'node_id':
+        'NodeId':
             [PyTango.DevShort, 
              '',
             [] ],
-        
-        'Base':
-            [PyTango.DevLong, 
-             'vme base address ',
-            [] ],
-        
-         'Channel':
-            [PyTango.DevLong, 
-             'channel number ',
-            [] ],
-        
-        'AccuMax':
-            [PyTango.DevLong, 
-             'the maximum step register value',
-            [] ],
-        
-         'AccuMin':
-            [PyTango.DevLong, 
-             ' the minimun step register value',
-            [] ],
-        
-         'SlewRateMinHw':
-            [PyTango.DevLong, 
-             ' the minumal slew rate, hardware',
-            [] ],
-        
-         'SlewRateMaxHw':
-            [PyTango.DevLong, 
-             ' the maximum slew rate, hardware',
-            [] ],
-        
-        
-         'AccelerationMinHw':
-            [PyTango.DevLong, 
-             'minimum acceleration, hardware',
-            [] ],
-        
-        
-         'AccelerationMaxHw':
-            [PyTango.DevLong, 
-             ' the maximum acceleration',
-            [] ],
-        
-        
-        
-         'Type':
-            [PyTango.DevShort, 
-             ' Motor type. 0 -> StepperMotor, 1 -> Servo ',
-            [] ],
-        'SimulationMode':
-            [PyTango.DevLong, 
-             '0 real mode, 1 simulation mode ',
-            [] ],
-        
-         'MaxVSerie':
-            [PyTango.DevShort, 
-             ' 0 not MaxV, 1 MaxV  ',
-            [] ],
-        
-         'IgnoreLimitSw ':
-            [PyTango.DevLong, 
-             'set to 1: the server will ignore any limit switch signals, so you can move a motor with no switches connected, set to 0: the server will honour limit switch signals ',
-            [] ],
-        
-         'FlagEncoder':
-            [PyTango.DevLong, 
-             '1 if an encoder Rnishaw rgh24 is connected, 2 if an SSI encoder is connected ',
-            [] ],
-        
-        
-         'FlagUseCollisionsSensor':
-            [PyTango.DevLong, 
-             'Set to 1 for using CollisionsSensor Server for checking possible collisions. ',
-            [] ],
-        
-        
-         'CollisionsSensorDS':
+        'DeviceName':
             [PyTango.DevString, 
-             'Name of the CollisionsSensor Device Server to be connected to.  ',
+             '',
             [] ],
-        
-         'CollisionsSensorBL':
-            [PyTango.DevString, 
-             'Beamline identification as string, needs for sending to CollisionsSensor. ',
+        'MaxVelocity':
+            [PyTango.DevDouble, 
+             '',
             [] ],
-        
-        
-        'ZMXDevice':
-            [PyTango.DevString, 
-             'Name of the zmx device connected to this motor.',
-            [] ],
-        
-        'FlagSendDataToCollisionsSensor':
-            [PyTango.DevLong, 
-             'If one limits are send to the collision sensor before checking the movement.It is necessary if any attribute of this server has to be used in the check routine.',
-            [] ],
-        
-        'FlagCutOrMap':
-            [PyTango.DevLong, 
-             '0 - ignore, 1 - cut, 2 - map ',
-            [] ],
-        
-        'AbsoluteEncoderOffset':
-            [PyTango.DevLong, 
-             'SSI absolute encoder difference (in counts)between absolute encoder zero and your desired zero position  ',
-            [] ],
-        
-        'AbsoluteEncoderResolution':
-            [PyTango.DevLong, 
-             'SSI encoder resolution in bits',
-            [] ],
-        
-        'AbsoluteEncoderFrequency':
-            [PyTango.DevLong, 
-             'SSI encoder data rate in Hz.',
-            [] ],
-        
-         'HomeDefinition':
-            [PyTango.DevString, 
-             'EHhiba h home i index b phase a phase  ',
-            [] ],
-        
-        
-         'HomeIndexDefinition':
-            [PyTango.DevLong, 
-             '1 - enables encoder index, phase A and B, 0 - disables I, A, B  ',
-            [] ],
-        
-         'VmeCard':
-            [PyTango.DevLong, 
-             'identifies the VME card, can be 0 or 1, default: 0 ',
-            [] ],
-
         }
 
 
@@ -851,113 +821,127 @@ class CopleyControlClass(PyTango.DeviceClass):
     cmd_list = {
         'Write':
             [[PyTango.DevString, "none"],
-            [PyTango.DevVoid, "none"]],
+            [PyTango.DevString, "none"]],
         'StopMove':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevVoid, "none"]],
-        'GetPosition':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevDouble, "none"]],
-        'GetRegister':
-            [[PyTango.DevLong, "none"],
-            [PyTango.DevString, "none"]],
-        
-        'CheckMove':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevLong, "none"]],
         'ResetMotor':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevVoid, "none"]],
-        'CompleteMove':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevLong, "none"]],
-        'SendCommandGetResult':
+        'WriteRead':
             [[PyTango.DevString, "none"],
             [PyTango.DevString, "none"]],
-        'SetRegister':
-            [[PyTango.DevVarStringArray, "none"],
-            [PyTango.DevVoid, "none"]],
-        'Move':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevVoid, "none"]],
-        'StartMove':
+        'MoveToCwLimit':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevLong, "none"]],
         'MoveToCcwLimit':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevLong, "none"]],
-        'MoveToCwLimit':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevLong, "none"]],        
         'MoveHome':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevLong, "none"]],
-        
+        'Calibrate':
+            [[PyTango.DevDouble, "none"],
+            [PyTango.DevVoid, "none"]],
+        'Move':
+            [[PyTango.DevVoid, "none"],
+            [PyTango.DevVoid, "none"]],
         }
 
 
     #    Attribute definitions
     attr_list = {
-        'Port':
-            [[PyTango.DevString,
-            PyTango.SCALAR,
-            PyTango.READ]],
-          
         'Acceleration':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-        'Position':
-            [[PyTango.DevDouble,
-            PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-        'Velocity':
-            [[PyTango.DevDouble,
-            PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-        'NodeID':
-            [[PyTango.DevShort,
-            PyTango.SCALAR,
-            PyTango.READ]],
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true"
+            } ],
         'Deceleration':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-         'DialPosition':
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true"
+            } ],
+        'Position':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-          'Conversion':
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'SetPoint':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-          'FlagBacklash':
-            [[PyTango.DevLong,
-            PyTango.SCALAR,
-            PyTango.READ]],
-         'FlagMotorReady':
-            [[PyTango.DevLong,
-            PyTango.SCALAR,
-            PyTango.READ]],
-          'CwLimit':
-            [[PyTango.DevLong,
-            PyTango.SCALAR,
-            PyTango.READ]],
-          'CcwLimit':
-            [[PyTango.DevLong,
-            PyTango.SCALAR,
-            PyTango.READ]],
-        
-         'HomePosition':
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'Velocity':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-        
-         'BaseRate':
-            [[PyTango.DevLong,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true"
+            } ],
+        'DialPosition':
+            [[PyTango.DevDouble,
             PyTango.SCALAR,
-            PyTango.READ_WRITE]],
-       
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'Conversion':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'SoftwareCwLimit':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'SoftwareCcwLimit':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'SoftwareCwDialLimit':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'SoftwareCcwDialLimit':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'ConversionSoftwareLimit':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
+        'HomeOffset':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true_without_hard_applied"
+            } ],
         }
 
 
@@ -967,7 +951,6 @@ def main():
         py.add_class(CopleyControlClass, CopleyControl, 'CopleyControl')
         #----- PROTECTED REGION ID(CopleyControl.add_classes) ENABLED START -----#
         
-
         #----- PROTECTED REGION END -----#	//	CopleyControl.add_classes
 
         U = PyTango.Util.instance()
