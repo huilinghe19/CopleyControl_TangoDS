@@ -5,31 +5,21 @@ from sardana.pool.controller import MotorController
 from sardana.pool.controller import DefaultValue, Description, FGet, FSet, Type
 
 class TangoDSObject(object):
-    def __init__(self, device):
-        self.name = device
-        ser = self.connectDevice(device)
+    def __init__(self, device_name):
+        self.name = device_name
+        ser = self.connectDevice(device_name)
         self.ser = ser
         
-    def connectDevice(self, device):    
+    def connectDevice(self, device_name):    
         """ connects with the device server.
         """
         try:
-            dev = PyTango.DeviceProxy(device)  
+            dev = PyTango.DeviceProxy(device_name)  
+            #print "Device Status:", dev.Status()
             return dev
         except:
             print "ERROR: An exception with connecting DS {} occurred. ".format(device)  
             return 
-            
-    def getCommandResult(self, command):
-        """
-        get the result of the command from the device server
-        """
-        ser= self.ser
-        print "command: ", command 
-        result = ser.WriteRead(command)
-        print "getCommandResult:", result
-        return result
-
     
     def getNodeID(self, axis):
         """
@@ -39,8 +29,7 @@ class TangoDSObject(object):
         db = PyTango.Database()
         dict_nodeID = db.get_device_property(str(self.name),"NodeId")
         return str(dict_nodeID["NodeId"][0])
-  
-        
+    
     def setVariable(self, axis, variable_ID, value):
         """
         set variable
@@ -48,8 +37,9 @@ class TangoDSObject(object):
         
         ser=self.ser
         nodeID = self.getNodeID(axis) 
-        print  "{} s r{} {}\n".format(nodeID, variable_ID, str(value))
-        return self.getCommandResult("{} s r{} {}\n".format(str(nodeID), str(variable_ID), str(int(value))))
+        setCommandFormat = "{} s r{} {}\n".format(str(nodeID), str(variable_ID), str(int(value)))
+        print  setCommandFormat
+        return ser.WriteRead(setCommandFormat)
     
     def getVariable(self, axis, variable_ID):
         """
@@ -58,8 +48,57 @@ class TangoDSObject(object):
         
         ser = self.ser
         nodeID = self.getNodeID(axis) 
-        return self.getCommandResult("{} g r{}\n".format(str(nodeID), str(variable_ID)))
+        getCommandFormat = "{} g r{}\n".format(str(nodeID), str(variable_ID))
+        print getCommandFormat
+        return ser.WriteRead("{} g r{}\n".format(str(nodeID), str(variable_ID)))
     
+    def getState(self):
+        ser = self.ser
+        ans = ser.Status()
+        print ans
+        return ans
+    
+    def getPosition(self):
+        ser = self.ser
+        ans = ser.position 
+        return float(int(ans))       
+    def getVelocity(self):
+        ser = self.ser        
+        ans = ser.velocity
+        return float(int(ans))
+    def getAcceleration(self):
+        ser = self.ser
+        ans = ser.acceleration
+        return float(int(ans))
+    def getDeceleration(self):
+        ser = self.ser
+        ans = ser.deceleration
+        return float(int(ans))
+    def getStepPerUnit(self):
+        ans = 1
+        return float(ans)
+    
+    def setVelocity(self, value):
+        
+        ser = self.ser
+        ser.velocity = int(value) 
+        
+    def setAcceleration(self, value):
+      
+        ser = self.ser
+        ser.acceleration = int(value)
+    def setDeceleration(self, value):
+        ser = self.ser
+        ser.deceleration = int(value)
+    def setStepPerUnit(self):
+        raise Exception("step_per_unit is always 1")
+    def setPosition(self, value):
+        
+        ser = self.ser
+       
+        ser.SetPoint = int(value) - int(self.getPosition())
+        ser.Position = int(value)
+        
     def moveMotor(self, axis):
         """
         move the axis.
@@ -67,7 +106,7 @@ class TangoDSObject(object):
         
         ser=self.ser
         nodeID = self.getNodeID(axis) 
-        result = self.getCommandResult("{} t 1\n".format(str(nodeID)))   
+        result = ser.WriteRead("{} t 1\n".format(str(nodeID)))   
         return result
     
     def abortMotor(self, axis):
@@ -77,7 +116,7 @@ class TangoDSObject(object):
         
         ser=self.ser
         nodeID = self.getNodeID(axis) 
-        self.getCommandResult("{} t 0\n".format(str(nodeID)))   
+        ser.WriteRead("{} t 0\n".format(str(nodeID)))   
         
     
         
@@ -88,10 +127,10 @@ class CopleyController(MotorController):
         
           "Device": {Type : str,
                   Description : "connected device server",
-                  DefaultValue : "stepper/hhl/1"},
+                  DefaultValue : ["stepper/hhl/1","stepper/hhl/2"]},
        
         }
-    AXIS_NAMES = {1: "stepnet01", 2: "stepnet02"}
+    AXIS_NAMES = {1: "stepper/hhl/1", 2: "stepper/hhl/2"}
     
     STATES = {"ON": State.On, "MOVING": State.Moving}
 
@@ -100,7 +139,7 @@ class CopleyController(MotorController):
         super_class = super(CopleyController, self)
         super_class.__init__(inst, props, *args, **kwargs)
         device = self.Device
-        self.copleyController = TangoDSObject(device)
+        #self.copleyController = TangoDSObject(device)
      
     def __del__(self):
         del self.copleyController
@@ -111,10 +150,12 @@ class CopleyController(MotorController):
       
         """
         axis_name = self.AXIS_NAMES[axis]
-        copleyController = self.copleyController      
-        result = copleyController.getVariable(axis, "0xA0")  
+        print axis,axis_name
+        copleyController = TangoDSObject(axis_name)
+        #result = copleyController.getVariable(axis, "0xA0") 
+        result = copleyController.getState()
         print "status result value: ", result
-        if result == "0":
+        if result == 'Status is STANDBY':
             print "State ON, Motion Stopped"
             state = self.STATES["ON"]
         else:
@@ -130,58 +171,65 @@ class CopleyController(MotorController):
         this method is used. 
         """
         axis_name = self.AXIS_NAMES[axis]
-        copleyController = self.copleyController
-        ans = copleyController.getVariable(axis, "0xca")
-      
+       
+        copleyController = TangoDSObject(axis_name)
+    
+        ans = copleyController.getPosition()
         return float(ans)
     def DefinePosition(self, axis, position):
         axis_name = self.AXIS_NAMES[axis]
-        copleyController = self.copleyController     
-        copleyController.setVariable(axis, "0xca", str(int(position)))
-
+      
+        copleyController = TangoDSObject(axis_name)
+     
+        copleyController.setPosition(position)
+        
     def StartOne(self, axis, position):
         """
         Move the axis(motor) to the given position. 
         """
         axis_name = self.AXIS_NAMES[axis]
-        copleyController = self.copleyController     
+       
+        copleyController = TangoDSObject(axis_name)
         self.DefinePosition(axis, position)
         copleyController.moveMotor(axis)   
         
     def GetAxisPar(self, axis, name):
         axis_name = self.AXIS_NAMES[axis]
-        copleyController = self.copleyController    
+      
+        copleyController = TangoDSObject(axis_name)
         name = name.lower()
         if name == "acceleration":
-            ans = copleyController.getVariable(axis, "0xcc")           
-            v = float(ans)          
+            ans = copleyController.getAcceleration()           
+                    
         elif name == "deceleration":
-            ans = copleyController.getVariable(axis, "0xcd")               
-            v = float(ans)        
+            ans = copleyController.getDeceleration()               
+                 
         elif name == "velocity":
-            ans = copleyController.getVariable(axis, "0xcb")             
-            v = float(ans)                
+            ans = copleyController.getVelocity()             
+                         
         elif name == "step_per_unit":
-            v = 1
-        return v
+            ans = copleyController.getStepPerUnit()
+        return ans
     
     def SetAxisPar(self, axis, name, value):
         axis_name = self.AXIS_NAMES[axis]
-        copleyController = self.copleyController    
+       
+        copleyController = TangoDSObject(axis_name)
         name = name.lower()
         if name == "acceleration":
-            copleyController.setVariable(axis, "0xcc", int(value))                       
+            copleyController.setAcceleration(value)                      
         elif name == "deceleration":
-            copleyController.setVariable(axis, "0xcd", int(value))                      
+            copleyController.setDeceleration(value)                     
         elif name == "velocity":
-            copleyController.setVariable(axis, "0xcb", int(value)) 
+            copleyController.setVelocity(value) 
         elif name == "step_per_unit":
-            raise Exception("step_per_unit is always 1")
+            copleyController.setStepPerUnit()
         
     def AbortOne(self, axis):
         """
         Abort the axis(motor).
         """
-        copleyController = self.copleyController
+       
+        copleyController = TangoDSObject(axis_name)
         copleyController.abortMotor(axis)
 
