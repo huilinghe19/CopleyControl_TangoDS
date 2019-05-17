@@ -69,7 +69,7 @@ def setScan():
     endPos = getResult(w2)
     intervals = getResult(w3)
     integrationTime = getResult(w4)
-    scanbutton.setParameters(['ascan', 'stepnet01', getResult(w1), getResult(w2), getResult(w3), getResult(w4)])
+    scanbutton.setParameters(['ascan', 'stepnet01', startPos, endPos, intervals, intervals])
 
 setParameterbutton = Qt.QPushButton("Apply")
 setParameterbutton.clicked.connect(setScan)    
