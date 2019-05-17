@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QWidget" name="widget" native="true">
+        <widget class="QFrame" name="frame">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>150</y>
+           <width>731</width>
+           <height>265</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="TaurusTrend" name="taurusTrend">
+          <property name="geometry">
+           <rect>
+            <x>310</x>
+            <y>20</y>
+            <width>391</width>
+            <height>231</height>
+           </rect>
+          </property>
+          <property name="model">
+           <stringlist>
+            <string>stepnet01/position</string>
+            <string></string>
+           </stringlist>
+          </property>
+         </widget>
+         <widget class="TaurusLabel" name="taurusLabel">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>40</y>
+            <width>101</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>state</string>
+          </property>
+         </widget>
+         <widget class="TaurusLabel" name="taurusLabel_2">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>80</y>
+            <width>101</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>position</string>
+          </property>
+         </widget>
+         <widget class="TaurusLabel" name="taurusLabel_3">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>130</y>
+            <width>101</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>acceleration</string>
+          </property>
+         </widget>
+         <widget class="TaurusLabel" name="taurusLabel_4">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>180</y>
+            <width>101</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>velocity</string>
+          </property>
+         </widget>
+         <widget class="TaurusValueLineEdit" name="taurusValueLineEdit_2">
+          <property name="geometry">
+           <rect>
+            <x>140</x>
+            <y>80</y>
+            <width>146</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>15000</string>
+          </property>
+          <property name="model">
+           <string>stepnet01/position</string>
+          </property>
+         </widget>
+         <widget class="TaurusValueLineEdit" name="taurusValueLineEdit_3">
+          <property name="geometry">
+           <rect>
+            <x>140</x>
+            <y>130</y>
+            <width>146</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="model">
+           <string>stepnet01/acceleration</string>
+          </property>
+         </widget>
+         <widget class="TaurusValueLineEdit" name="taurusValueLineEdit_4">
+          <property name="geometry">
+           <rect>
+            <x>140</x>
+            <y>180</y>
+            <width>146</width>
+            <height>25</height>
+           </rect>
+          </property>
+          <property name="model">
+           <string>stepnet01/velocity</string>
+          </property>
+         </widget>
+         <widget class="TaurusLed" name="taurusLed">
+          <property name="geometry">
+           <rect>
+            <x>190</x>
+            <y>40</y>
+            <width>24</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="model">
+           <string>stepnet01/state</string>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TaurusLabel</class>
+   <extends>QLabel</extends>
+   <header>taurus.qt.qtgui.display</header>
+  </customwidget>
+  <customwidget>
+   <class>TaurusValueLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>taurus.qt.qtgui.input</header>
+  </customwidget>
+  <customwidget>
+   <class>TaurusPlot</class>
+   <extends>QFrame</extends>
+   <header>taurus.qt.qtgui.plot</header>
+  </customwidget>
+  <customwidget>
+   <class>TaurusTrend</class>
+   <extends>TaurusPlot</extends>
+   <header>taurus.qt.qtgui.plot</header>
+  </customwidget>
+  <customwidget>
+   <class>TaurusLed</class>
+   <extends>QLed</extends>
+   <header>taurus.qt.qtgui.display</header>
+  </customwidget>
+  <customwidget>
+   <class>QLed</class>
+   <extends>QPixmapWidget</extends>
+   <header>taurus.qt.qtgui.display</header>
+  </customwidget>
+  <customwidget>
+   <class>QPixmapWidget</class>
+   <extends>QWidget</extends>
+   <header>taurus.qt.qtgui.display</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
