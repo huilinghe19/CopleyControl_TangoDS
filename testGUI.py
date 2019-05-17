@@ -56,13 +56,14 @@ parametersLayout.addWidget(w1)
 parametersLayout.addWidget(w2)
 parametersLayout.addWidget(w3)
 parametersLayout.addWidget(w4)
-def getResult(widget):
-    text = widget.displayText() 
-    return text.encode('utf-8')
    
 scanbutton = TaurusCommandButton(command = "RunMacro", icon=None)
 scanbutton.setCustomText('Ascan')
 scanbutton.setModel(Door_name) 
+
+def getResult(widget):
+    text = widget.displayText() 
+    return text.encode('utf-8')
 def setScan():
     startPos = getResult(w1)
     endPos = getResult(w2)
