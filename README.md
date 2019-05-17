@@ -45,7 +45,9 @@ Frist, add pogoRevision="9.4" into the class. <classes name="PowerPMACAxes" pogo
 	Then use pogo to create powerPMAC_TANGO DS CLASS with the option Makefile. Then the c++ source files can be created in the folder. Then use "make" to create the powerPMAC_TANGO DS class DS. at the end, you will see PowerPMACAxes in the folder "~/DeviceServers". The command:"DeviceServers/PowerPMACAxes test" can be used later. All my c++ DS class such as Socket DS is also using the method. 
 
 6. Qt Designer
+
   Command: "taurusdesigner"
+  
   The Qt Designer interface will be displayed and .ui file can be opened to show the copley controller GUI, in the GUI the states, position and acceleration and "taurustrend stepnet01/position" curve can be shown.
 
 
