@@ -91,10 +91,10 @@ class CopleyControl (PyTango.Device_4Impl):
         self.attr_SoftwareCcwLimit_read = 0.0
         self.attr_SoftwareCwDialLimit_read = 0.0
         self.attr_SoftwareCcwDialLimit_read = 0.0
-        self.attr_ConversionSoftwareLimit_read = 0.0
         self.attr_HomeOffset_read = 0.0
         self.attr_CwLimit_read = False
         self.attr_CcwLimit_read = False
+        self.attr_RealMaxVelocity_read = 0.0
         #----- PROTECTED REGION ID(CopleyControl.init_device) ENABLED START -----#
         self.attr_Acceleration_read = 66800.0
         self.attr_Deceleration_read = 66800.0
@@ -109,8 +109,9 @@ class CopleyControl (PyTango.Device_4Impl):
         self.attr_HomeOffset_read = 1000.0
         self.dev_serial = self.connectSerial()         
         self.NodeID = self.getNodeID()
+        #self.MaxVelocity = 7000
         #self.MaxVelocity = self.getMaxVelocity()
-        self.MaxVelocity = 7000
+        
         #----- PROTECTED REGION END -----#	//	CopleyControl.init_device
 
     def always_executed_hook(self):
@@ -126,36 +127,41 @@ class CopleyControl (PyTango.Device_4Impl):
     def read_Acceleration(self, attr):
         self.debug_stream("In read_Acceleration()")
         #----- PROTECTED REGION ID(CopleyControl.Acceleration_read) ENABLED START -----#
-        attr.set_value(self.attr_Acceleration_read)
+        #attr.set_value(self.attr_Acceleration_read)
         command = self.getParameterCommand("0xcc")
-        attr_Acceleration_read =  self.WriteRead(command)
-        if attr_Acceleration_read != '':
-            attr.set_value(int(attr_Acceleration_read))   
+        self.attr_Acceleration_read =  self.WriteRead(command)
+        if self.attr_Acceleration_read != '':
+            print "Read Acceleration: ", self.attr_Acceleration_read
+            realAcceleration = int(self.attr_Acceleration_read)/400
+            attr.set_value(realAcceleration)
         #----- PROTECTED REGION END -----#	//	CopleyControl.Acceleration_read
         
     def write_Acceleration(self, attr):
         self.debug_stream("In write_Acceleration()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Acceleration_write) ENABLED START -----#
-        command = self.setParameterCommand("0xcc", str(int(data)))
+        self.attr_Acceleration_read = int(data)*400
+        command = self.setParameterCommand("0xcc", str(int(self.attr_Acceleration_read)))
         self.Write(command)
         #----- PROTECTED REGION END -----#	//	CopleyControl.Acceleration_write
         
     def read_Deceleration(self, attr):
         self.debug_stream("In read_Deceleration()")
         #----- PROTECTED REGION ID(CopleyControl.Deceleration_read) ENABLED START -----#
-        attr.set_value(self.attr_Deceleration_read)
+        #attr.set_value(self.attr_Deceleration_read)
         command = self.getParameterCommand("0xcd")
-        attr_Deceleration_read =  self.WriteRead(command)
-        if attr_Deceleration_read != '':
-            attr.set_value(int(attr_Deceleration_read))  
+        self.attr_Deceleration_read =  self.WriteRead(command)
+        if self.attr_Deceleration_read != '':
+            realDeceleration = int(self.attr_Deceleration_read)/400
+            attr.set_value(int(realDeceleration))  
         #----- PROTECTED REGION END -----#	//	CopleyControl.Deceleration_read
         
     def write_Deceleration(self, attr):
         self.debug_stream("In write_Deceleration()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Deceleration_write) ENABLED START -----#
-        command = self.setParameterCommand("0xcd", str(int(data)))
+        self.attr_Deceleration_read = int(data)*400
+        command = self.setParameterCommand("0xcd", str(int(self.attr_Deceleration_read)))
         self.Write(command)
         #----- PROTECTED REGION END -----#	//	CopleyControl.Deceleration_write
         
@@ -166,7 +172,11 @@ class CopleyControl (PyTango.Device_4Impl):
         command = self.getParameterCommand("0x2d")
         self.attr_Position_read =  self.WriteRead(command)
         if self.attr_Position_read != '':
-            attr.set_value(int(self.attr_Position_read))     
+            attr.set_value(int(self.attr_Position_read))   
+            if self.attr_Position_read == 3414 or self.attr_Position_read == 3415:
+                print "Minimum Position is ", self.attr_Position_read
+            elif self.attr_Position_read == 5412 or self.attr_Position_read == 5413:
+                print "Maximum Position is ", self.attr_Position_read
         #----- PROTECTED REGION END -----#	//	CopleyControl.Position_read
         
     def write_Position(self, attr):
@@ -218,17 +228,19 @@ class CopleyControl (PyTango.Device_4Impl):
     def read_Velocity(self, attr):
         self.debug_stream("In read_Velocity()")
         #----- PROTECTED REGION ID(CopleyControl.Velocity_read) ENABLED START -----#
-        attr.set_value(self.attr_Velocity_read)
+        #attr.set_value(self.attr_Velocity_read)
         command = self.getParameterCommand("0xcb")
-        attr_Velocity_read =  self.WriteRead(command)
-        if attr_Velocity_read != '':
-            attr.set_value(int(attr_Velocity_read))
+        self.attr_Velocity_read =  self.WriteRead(command)
+        if self.attr_Velocity_read != '':
+            attr.set_value(int(self.attr_Velocity_read))
         #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_read
         
     def write_Velocity(self, attr):
         self.debug_stream("In write_Velocity()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.Velocity_write) ENABLED START -----#
+        self.attr_Velocity_read = int(data)
+        attr.set_value(self.attr_Velocity_read)
         command = self.setParameterCommand("0xcb ", str(int(data)))
         self.Write(command)
         #----- PROTECTED REGION END -----#	//	CopleyControl.Velocity_write
@@ -275,7 +287,7 @@ class CopleyControl (PyTango.Device_4Impl):
     def read_SoftwareCwLimit(self, attr):
         self.debug_stream("In read_SoftwareCwLimit()")
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCwLimit_read) ENABLED START -----#
-        attr.set_value(self.attr_SoftwareCwLimit_read)
+        #attr.set_value(self.attr_SoftwareCwLimit_read)
         command = self.getParameterCommand("0xb8")
         self.attr_SoftwareCwLimit_read =  self.WriteRead(command)
         attr.set_value(int(self.attr_SoftwareCwLimit_read))
@@ -287,21 +299,24 @@ class CopleyControl (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCwLimit_write) ENABLED START -----#
         print("SoftwareCwLimit:", data, "current position: ", self.attr_Position_read, "Ccwlimit: ", self.attr_SoftwareCcwLimit_read, "Cwlimit: ", self.attr_SoftwareCwLimit_read)
         expected_position = int(self.attr_Position_read) + int(self.attr_SetPoint_read)
-        if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(data)):
-            self.attr_SoftwareCwLimit_read = data
-            
-            command = self.setParameterCommand("0xb8", str(int(data)))
-            self.Write(command)
-            attr.set_value(int(self.attr_SoftwareCwLimit_read)) 
-        else:
-            print("SoftwareCwLimit must be higher than Position plus SetPoint")
-            
+        if int(data) > 0:
+            print "input data >0 , data is valid"
+            if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(data)):
+                self.attr_SoftwareCwLimit_read = data            
+                command = self.setParameterCommand("0xb8", str(int(data)))
+                self.Write(command)
+                attr.set_value(int(self.attr_SoftwareCwLimit_read)) 
+            else:
+                print("SoftwareCwLimit must be higher than current Position plus current SetPoint")
+        else: 
+            print  "input data is not valid"
             
         #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwLimit_write
         
     def read_SoftwareCcwLimit(self, attr):
         self.debug_stream("In read_SoftwareCcwLimit()")
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwLimit_read) ENABLED START -----#
+        #attr.set_value(self.attr_SoftwareCcwLimit_read)
         command = self.getParameterCommand("0xb9")
         self.attr_SoftwareCcwLimit_read =  self.WriteRead(command)
         
@@ -313,14 +328,18 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In write_SoftwareCcwLimit()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwLimit_write) ENABLED START -----#
+       
         expected_position = int(self.attr_Position_read) + int(self.attr_SetPoint_read)
         if expected_position in range(int(data), int(self.attr_SoftwareCwLimit_read)):
+            print "ok"
             self.attr_SoftwareCcwLimit_read = data
-            command = self.setParameterCommand("0xb9", str(int(data)))
-            print command
-            
-            attr.set_value(data) 
+            attr.set_value(int(self.attr_SoftwareCcwLimit_read))
+            command = self.setParameterCommand("0xb9", int(self.attr_SoftwareCcwLimit_read))
+            print "command", command
+            print "data:", str(data)
             self.Write(command)
+            
+            
         else:
             print("SoftwareCcwLimit must be smaller than Position plus SetPoint")
         #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwLimit_write
@@ -329,7 +348,7 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In read_SoftwareCwDialLimit()")
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCwDialLimit_read) ENABLED START -----#
         attr.set_value(self.attr_SoftwareCwDialLimit_read)
-        self.attr_SoftwareCwDialLimit_read = float(self.attr_SoftwareCwLimit_read) / float(self.attr_ConversionSoftwareLimit_read)
+        self.attr_SoftwareCwDialLimit_read = float(self.attr_SoftwareCwLimit_read) / float(self.attr_Conversion_read)
         if self.attr_SoftwareCwDialLimit_read != '':
             attr.set_value(int(self.attr_SoftwareCwDialLimit_read))     
         #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwDialLimit_read
@@ -338,21 +357,23 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In write_SoftwareCwDialLimit()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCwDialLimit_write) ENABLED START -----#
-        data_new = float(self.attr_ConversionSoftwareLimit_read) * data
-        self.attr_SoftwareCwLimit_read = data_new
-        
+        print "data:", data
+        data_new = float(self.attr_Conversion_read) * data
+        self.attr_SoftwareCwLimit_read = data_new        
         self.attr_SoftwareCwDialLimit_read = data
         attr.set_value(data) 
-       
+        command = self.setParameterCommand("0xb8", int(self.attr_SoftwareCwLimit_read))
+        print "command", command        
+        self.Write(command)
         #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCwDialLimit_write
         
     def read_SoftwareCcwDialLimit(self, attr):
         self.debug_stream("In read_SoftwareCcwDialLimit()")
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwDialLimit_read) ENABLED START -----#
-        attr.set_value(self.attr_SoftwareCcwDialLimit_read)
-        self.attr_SoftwareCcwDialLimit_read = float(self.attr_SoftwareCcwLimit_read) / float(self.attr_ConversionSoftwareLimit_read)
+        #attr.set_value(self.attr_SoftwareCcwDialLimit_read)
+        self.attr_SoftwareCcwDialLimit_read = float(self.attr_SoftwareCcwLimit_read) / float(self.attr_Conversion_read)
         if self.attr_SoftwareCcwLimit_read != '':
-            attr.set_value(-(int(self.attr_SoftwareCcwDialLimit_read)))     
+            attr.set_value(int(self.attr_SoftwareCcwDialLimit_read))    
        
         #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwDialLimit_read
         
@@ -360,26 +381,18 @@ class CopleyControl (PyTango.Device_4Impl):
         self.debug_stream("In write_SoftwareCcwDialLimit()")
         data = attr.get_write_value()
         #----- PROTECTED REGION ID(CopleyControl.SoftwareCcwDialLimit_write) ENABLED START -----#
-        data_new = float(self.attr_ConversionSoftwareLimit_read) * data
-        self.attr_SoftwareCcwLimit_read = -(int(data_new))
-        
-        self.attr_SoftwareCcwDialLimit_read = data
+        print data
         attr.set_value(data) 
+        data_new = float(self.attr_Conversion_read) * data
+        self.attr_SoftwareCcwLimit_read = int(data_new)
+        print self.attr_SoftwareCcwLimit_read
+        self.attr_SoftwareCcwDialLimit_read = data
+        command = self.setParameterCommand("0xb9", int(self.attr_SoftwareCcwLimit_read))
+        print "command", command
+        print "data:", str(data)
+        self.Write(command)
+        #attr.set_value(self.attr_SoftwareCcwDialLimit_read) 
         #----- PROTECTED REGION END -----#	//	CopleyControl.SoftwareCcwDialLimit_write
-        
-    def read_ConversionSoftwareLimit(self, attr):
-        self.debug_stream("In read_ConversionSoftwareLimit()")
-        #----- PROTECTED REGION ID(CopleyControl.ConversionSoftwareLimit_read) ENABLED START -----#
-        attr.set_value(self.attr_ConversionSoftwareLimit_read)
-        
-        #----- PROTECTED REGION END -----#	//	CopleyControl.ConversionSoftwareLimit_read
-        
-    def write_ConversionSoftwareLimit(self, attr):
-        self.debug_stream("In write_ConversionSoftwareLimit()")
-        data = attr.get_write_value()
-        #----- PROTECTED REGION ID(CopleyControl.ConversionSoftwareLimit_write) ENABLED START -----#
-        self.attr_ConversionSoftwareLimit_read = data
-        #----- PROTECTED REGION END -----#	//	CopleyControl.ConversionSoftwareLimit_write
         
     def read_HomeOffset(self, attr):
         self.debug_stream("In read_HomeOffset()")
@@ -398,35 +411,52 @@ class CopleyControl (PyTango.Device_4Impl):
         
     def read_CwLimit(self, attr):
         self.debug_stream("In read_CwLimit()")
-        #----- PROTECTED REGION ID(CopleyControl.CwLimit_read) ENABLED START -----#
-       
-     
+        #----- PROTECTED REGION ID(CopleyControl.CwLimit_read) ENABLED START -----#     
         self.clearLatchedStatus()
         value = self.readLatchedEventStatus()
-        
+        print value
         if (int(value)&512)<>0: 
             self.attr_CwLimit_read = True
             attr.set_value(self.attr_CwLimit_read)
-            print("Positive limit switche is active")
-       
-        attr.set_value(self.attr_CwLimit_read)  
-            
+            print("Positive limit switche is active")       
+        attr.set_value(self.attr_CwLimit_read)              
         #----- PROTECTED REGION END -----#	//	CopleyControl.CwLimit_read
         
     def read_CcwLimit(self, attr):
         self.debug_stream("In read_CcwLimit()")
-        #----- PROTECTED REGION ID(CopleyControl.CcwLimit_read) ENABLED START -----#
-        
+        #----- PROTECTED REGION ID(CopleyControl.CcwLimit_read) ENABLED START -----#        
         self.clearLatchedStatus()
         value = self.readLatchedEventStatus()
-        
+        print value
         if (int(value)&1024)<>0: 
             self.attr_CcwLimit_read = True
             attr.set_value(self.attr_CcwLimit_read)
-            print("Negative limit switche is active")
-       
+            print("Negative limit switche is active")       
         attr.set_value(self.attr_CcwLimit_read)  
         #----- PROTECTED REGION END -----#	//	CopleyControl.CcwLimit_read
+        
+    def read_RealMaxVelocity(self, attr):
+        self.debug_stream("In read_RealMaxVelocity()")
+        #----- PROTECTED REGION ID(CopleyControl.RealMaxVelocity_read) ENABLED START -----#
+        unit = 0.1
+        ustepsRev = 4000
+        conversionVelocity = 60 * unit/ustepsRev 
+        self.attr_RealMaxVelocity_read = int((int(self.attr_Velocity_read) *conversionVelocity))    
+        #self.MaxVelocity = self.attr_RealMaxVelocity_read
+        attr.set_value(self.attr_RealMaxVelocity_read)
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.RealMaxVelocity_read
+        
+    def write_RealMaxVelocity(self, attr):
+        self.debug_stream("In write_RealMaxVelocity()")
+        data = attr.get_write_value()
+        #----- PROTECTED REGION ID(CopleyControl.RealMaxVelocity_write) ENABLED START -----#
+        self.attr_RealMaxVelocity_read = int(data)
+        self.attr_Velocity_read = int((int(self.attr_RealMaxVelocity_read)*2000/3)) 
+        attr.set_value(self.attr_RealMaxVelocity_read)
+        command = self.setParameterCommand("0xcb ", str(int(self.attr_Velocity_read)))
+        self.Write(command)
+        #----- PROTECTED REGION END -----#	//	CopleyControl.RealMaxVelocity_write
         
     
     
@@ -510,34 +540,6 @@ class CopleyControl (PyTango.Device_4Impl):
         self.__status = PyTango.Device_4Impl.dev_status(self)
         return self.__status
         
-    def Write(self, argin):
-        """ 
-        :param argin: 
-        :type argin: PyTango.DevString
-        :rtype: PyTango.DevString
-        """
-        self.debug_stream("In Write()")
-        argout = ""
-        #----- PROTECTED REGION ID(CopleyControl.Write) ENABLED START -----#
-        raw_result = ""
-        print "In ", self.get_name(), "::WriteRead()", str(argin)    
-        dev = self.dev_serial       
-        dev.FlushInput()
-        dev.Write(argin)
-        time.sleep(0.3)
-        while True:                      
-            data = dev.Read(1) 
-            if not data: # no data means errors or timeout
-                break
-            if data == "\n": # LF -> expected
-                break
-            if data == '\r': # CR -> ignored
-                continue     
-            raw_result += data         
-        
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Write
-        return argout
-        
     def StopMove(self):
         """ 
         """
@@ -592,8 +594,9 @@ class CopleyControl (PyTango.Device_4Impl):
         
         
         dec_raw = raw_result.split()[1]
-        v = int(dec_raw)
-        print v
+        v = dec_raw
+        print "the real answer", v
+        argout = v
         #result = raw_result[2:]
         #if result != '' and result != '033' and result != '33':
             #argout = result
@@ -602,7 +605,7 @@ class CopleyControl (PyTango.Device_4Impl):
             #print "error"
         #argout = raw_result
         #----- PROTECTED REGION END -----#	//	CopleyControl.WriteRead
-        return v
+        return argout
         
     def MoveToCwLimit(self):
         """ 
@@ -613,18 +616,14 @@ class CopleyControl (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(CopleyControl.MoveToCwLimit) ENABLED START -----#
         status = str(self.dev_status())
         print status
-        print self.MaxVelocity
-        current_position = self.WriteRead(str(self.NodeID) + " g r0x2d")
-        expected_position = int(current_position) + int(self.attr_SetPoint_read)
+
         if status == "Status is STANDBY":
-            if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
-                print  "expected_position ", expected_position, " is among the range from ", int(self.attr_SoftwareCcwLimit_read), " to ", int(self.attr_SoftwareCwLimit_read)
-                command_move = self.setParameterCommand( "t", 1)
-                self.setMoveParameters(31, 256,  abs(int(self.attr_SetPoint_read)), self.MaxVelocity,  self.attr_Acceleration_read, self.attr_Deceleration_read)
-                self.Write(str(command_move))
-                
-            else:
-                 print("Can not move, expected position is out of range.")
+            
+            self.WriteRead(str(self.NodeID) + " s r0xc2 516")
+            self.WriteRead(str(self.NodeID) + " t 2")
+       
+
+           
                                                          
 
         else:
@@ -641,29 +640,20 @@ class CopleyControl (PyTango.Device_4Impl):
         #----- PROTECTED REGION ID(CopleyControl.MoveToCcwLimit) ENABLED START -----#
         status = str(self.dev_status())
         print status
-        print self.MaxVelocity
-        current_position = self.WriteRead(str(self.NodeID) + " g r0x2d")
-        expected_position = int(current_position) + int(self.attr_SetPoint_read)
+        
         if status == "Status is STANDBY":
-            if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
-                print  "expected_position ", expected_position, " is among the range from ", int(self.attr_SoftwareCcwLimit_read), " to ", int(self.attr_SoftwareCwLimit_read)
-                command_move = self.setParameterCommand( "t", 1)
-                self.WriteRead(str(self.NodeID) + " s r0xc2 529")
-                
-                self.setMoveParameters(31, 256, - abs(int(self.attr_SetPoint_read)), self.MaxVelocity,  self.attr_Acceleration_read, self.attr_Deceleration_read)
-                self.Write(str(command_move))
-                
-            else:
-                 print("Can not move, expected position is out of range.")
-                                                         
+            self.WriteRead(str(self.NodeID) + " s r0xc2 532")
+            self.WriteRead(str(self.NodeID) + " t 2")          
 
         else:
             print("Check Device State please.")
         #----- PROTECTED REGION END -----#	//	CopleyControl.MoveToCcwLimit
         return argout
         
-    def MoveHome(self):
+    def MoveHome(self, argin):
         """ 
+        :param argin: 
+        :type argin: PyTango.DevDouble
         :rtype: PyTango.DevLong
         """
         self.debug_stream("In MoveHome()")
@@ -673,38 +663,14 @@ class CopleyControl (PyTango.Device_4Impl):
         print status
         position_1 = self.WriteRead(str(self.NodeID) + " g r0x2d")
         print position_1
-        limitValue = self.checkLimit()       
+        limitValue = self.checkLimit()   
+        
         print limitValue
-        if limitValue == 0:
-            command = self.setHomeParameters(513)
-            self.Write(command)
-            argou = 0
-        elif limitValue == 1:
-            command = self.setHomeParameters(529)
-            self.Write(command)
-            argout = 1                        
-        elif limitValue == 2:
-            command = self.setHomeParameters(513)
-            self.Write(command)
-            argout = 2
-        return argout
+        command = self.setHomeParameters(int(argin))
+        self.Write(command)
+        
         #----- PROTECTED REGION END -----#	//	CopleyControl.MoveHome
         return argout
-        
-    def Calibrate(self, argin):
-        """ 
-        :param argin: 
-        :type argin: PyTango.DevDouble
-        """
-        self.debug_stream("In Calibrate()")
-        #----- PROTECTED REGION ID(CopleyControl.Calibrate) ENABLED START -----#
-
-        
-        current_position = self.WriteRead(str(self.NodeID) + " g r0x2d")
-        self.attr_SetPoint_read = int(argin) - int(current_position)
-        self.Write(str(self.NodeID) + " s r0xca " + str(int(self.attr_SetPoint_read)))
-       
-        #----- PROTECTED REGION END -----#	//	CopleyControl.Calibrate
         
     def Move(self):
         """ 
@@ -719,45 +685,44 @@ class CopleyControl (PyTango.Device_4Impl):
         if status == "Status is STANDBY":
             if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
                 print  "expected_position ", expected_position, " is among the range from ", int(self.attr_SoftwareCcwLimit_read), " to ", int(self.attr_SoftwareCwLimit_read)
-                command_move = self.setParameterCommand("t", 1)
+                
                 self.setMoveParameters(31, 256, self.attr_SetPoint_read, self.MaxVelocity,  self.attr_Acceleration_read, self.attr_Deceleration_read)
+                command_move = str(self.NodeID) +" t 1"
                 self.Write(str(command_move))
                 
             else:
-                 print("Can not move, expected position is out of range.")
-                                                         
-
+                 print  "expected_position ", expected_position, " is not among the range from ", int(self.attr_SoftwareCcwLimit_read), " to ", int(self.attr_SoftwareCwLimit_read)
         else:
             print("Check Device State please.")
         #----- PROTECTED REGION END -----#	//	CopleyControl.Move
         
-    def MovePosition(self, argin):
+    def Write(self, argin):
         """ 
         :param argin: 
-        :type argin: PyTango.DevDouble
+        :type argin: PyTango.DevString
+        :rtype: PyTango.DevString
         """
-        self.debug_stream("In MovePosition()")
-        #----- PROTECTED REGION ID(CopleyControl.MovePosition) ENABLED START -----#
-        status = str(self.dev_status())
-        print status
-        print self.MaxVelocity
-        current_position = self.WriteRead(str(self.NodeID) + " g r0x2d")
-        expected_position = int(current_position) + int(self.attr_SetPoint_read)
-        if status == "Status is STANDBY":
-            if expected_position in range(int(self.attr_SoftwareCcwLimit_read), int(self.attr_SoftwareCwLimit_read)):
-                print  "expected_position ", expected_position, " is among the range from ", int(self.attr_SoftwareCcwLimit_read), " to ", int(self.attr_SoftwareCwLimit_read)
-                
-                self.setMoveParameters(31, 256, int(argin), self.MaxVelocity,  self.attr_Acceleration_read, self.attr_Deceleration_read)
-                command_move = self.setParameterCommand("t", 1)
-                self.Write(str(command_move))
-                
-            else:
-                 print("Can not move, expected position is out of range.")
-                                                         
-
-        else:
-            print("Check Device State please.")
-        #----- PROTECTED REGION END -----#	//	CopleyControl.MovePosition
+        self.debug_stream("In Write()")
+        argout = ""
+        #----- PROTECTED REGION ID(CopleyControl.Write) ENABLED START -----#
+        raw_result = ""
+        print "In ", self.get_name(), "::WriteRead()", str(argin)    
+        dev = self.dev_serial       
+        dev.FlushInput()
+        dev.Write(argin)
+        time.sleep(0.3)
+        while True:                      
+            data = dev.Read(1) 
+            if not data: # no data means errors or timeout
+                break
+            if data == "\n": # LF -> expected
+                break
+            if data == '\r': # CR -> ignored
+                continue     
+            raw_result += data         
+        
+        #----- PROTECTED REGION END -----#	//	CopleyControl.Write
+        return argout
         
 
     #----- PROTECTED REGION ID(CopleyControl.programmer_methods) ENABLED START -----#
@@ -859,21 +824,21 @@ class CopleyControl (PyTango.Device_4Impl):
     def setHomeParameters(self, homingMethod):
         HomeOffset = self.attr_HomeOffset_read 
         command_desiredState = self.setParameterCommand("0x24", 31)  
-        command_homingMethod = self.setParameterCommand("0xc2", int(homingMethod))  
+        command_homingMethod = self.setParameterCommand("0xc2", 516)  
         command_FastVelocity = self.setParameterCommand("0xc3", 16667)  
         command_SlowVelocity = self.setParameterCommand("0xc4", 3333)        
         command_Acceleration = self.setParameterCommand("0xc5", 6800)   
         command_homeOffset = self.setParameterCommand("0xc6", int(HomeOffset))   
         command_CurrentLimit= self.setParameterCommand("0xc7", 19)        
-        command_TrajectoryProfileMode = self.setParameterCommand("0xc8", 0)         
-        command_PositiveSoftwareLimit = self.setParameterCommand( "0xb8", 20000)        
-        command_NegativeSoftwareLimit= self.setParameterCommand( "0xb9", 0)        
-        command_Position = self.setParameterCommand("0xca", 0)
-        command_homing = self.setParameterCommand("t", 2)
+        command_TrajectoryProfileMode = self.setParameterCommand("0xc8", 256)         
+        command_PositiveSoftwareLimit = self.setParameterCommand( "0xb8", self.attr_SoftwareCwLimit_read)        
+        command_NegativeSoftwareLimit= self.setParameterCommand( "0xb9", self.attr_SoftwareCcwLimit_read)        
+        #command_Position = self.setParameterCommand("0xca", 0)
+        command_homing = str(self.NodeID) + " t 2"
         
-        command = str(command_desiredState) + str(command_homingMethod) + str(command_FastVelocity)+ str(command_SlowVelocity) + str(command_Acceleration) + str(command_homeOffset) + str(command_CurrentLimit) + str(command_TrajectoryProfileMode)+ str(command_PositiveSoftwareLimit) +  str(command_NegativeSoftwareLimit) + str(command_Position) + str(command_homing)
+        command = str(command_desiredState) + str(command_homingMethod) + str(command_FastVelocity)+ str(command_SlowVelocity) + str(command_Acceleration) + str(command_homeOffset) + str(command_CurrentLimit) + str(command_TrajectoryProfileMode)+ str(command_PositiveSoftwareLimit) +  str(command_NegativeSoftwareLimit) + str(command_homing)
         print command
-        return command 
+        return command_homing
     
     def setMoveParameters(self, desired_state, trajectory_profile_mode, position_desired, velocity_desired, acceleration_desired, deceleration_desired):
         """ Sets Programmed Position Mode, Trajectory Profile Mode, position, velocity, acceleration, deceleration.       
@@ -911,7 +876,7 @@ class CopleyControl (PyTango.Device_4Impl):
         """ return the Get Command with nodeID, command for copley control
         """
         return '{} g r{}\n'.format(str(int(self.NodeID)), command)
-       
+   
         
     #----- PROTECTED REGION END -----#	//	CopleyControl.programmer_methods
 
@@ -950,9 +915,6 @@ class CopleyControlClass(PyTango.DeviceClass):
 
     #    Command definitions
     cmd_list = {
-        'Write':
-            [[PyTango.DevString, "none"],
-            [PyTango.DevString, "none"]],
         'StopMove':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevVoid, "none"]],
@@ -969,17 +931,14 @@ class CopleyControlClass(PyTango.DeviceClass):
             [[PyTango.DevVoid, "none"],
             [PyTango.DevLong, "none"]],
         'MoveHome':
-            [[PyTango.DevVoid, "none"],
-            [PyTango.DevLong, "none"]],
-        'Calibrate':
             [[PyTango.DevDouble, "none"],
-            [PyTango.DevVoid, "none"]],
+            [PyTango.DevLong, "none"]],
         'Move':
             [[PyTango.DevVoid, "none"],
             [PyTango.DevVoid, "none"]],
-        'MovePosition':
-            [[PyTango.DevDouble, "none"],
-            [PyTango.DevVoid, "none"]],
+        'Write':
+            [[PyTango.DevString, "none"],
+            [PyTango.DevString, "none"]],
         }
 
 
@@ -1062,13 +1021,6 @@ class CopleyControlClass(PyTango.DeviceClass):
             {
                 'Memorized':"true_without_hard_applied"
             } ],
-        'ConversionSoftwareLimit':
-            [[PyTango.DevDouble,
-            PyTango.SCALAR,
-            PyTango.READ_WRITE],
-            {
-                'Memorized':"true_without_hard_applied"
-            } ],
         'HomeOffset':
             [[PyTango.DevDouble,
             PyTango.SCALAR,
@@ -1084,6 +1036,13 @@ class CopleyControlClass(PyTango.DeviceClass):
             [[PyTango.DevBoolean,
             PyTango.SCALAR,
             PyTango.READ]],
+        'RealMaxVelocity':
+            [[PyTango.DevDouble,
+            PyTango.SCALAR,
+            PyTango.READ_WRITE],
+            {
+                'Memorized':"true"
+            } ],
         }
 
 
