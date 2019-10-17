@@ -19,7 +19,7 @@
 
 	3.2 Start PySerial DS:
 
- 		Command: “python PySerial.py test”
+ 		Command: “python work/sardana_practise/jive/serialLine/src/PySerial.py test ”
 
 	In addition, a new device “pyserial/hhl/1” needs to be added in PySerial DS. 
 
@@ -28,7 +28,7 @@
 
 	3.3. Start CopleyControl DS:
 
- 		Command: “python CopleyControl.py test”
+ 		Command: “python work/CopleyControl_TangoDS/CopleyControl.py test”
 
 	In addition, a new device “copley/hhl/1” needs to be added in CopleyControl DS. 
 
