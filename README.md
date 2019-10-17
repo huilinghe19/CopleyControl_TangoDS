@@ -51,5 +51,12 @@ Frist, add pogoRevision="9.4" into the class. <classes name="PowerPMACAxes" pogo
   The Qt Designer interface will be displayed and .ui file can be opened to show the copley controller GUI, in the GUI the states, position and acceleration and "taurustrend stepnet01/position" curve can be shown.
 
 
+7. 
+  Terminal1: python work/sardana_practise/jive/serialLine/src/PySerial.py test
+  Terminal2: python work/CopleyControl_TangoDS/CopleyControl.py test
+  Terminal3: Sardana demo4
+  Terminal4: spock
+
+  In spock, "wa", "sar_demo", "lsctrllib", "Pool_demo4_1.put_property({"PoolPath":["/controllers/test"]})", 
 
 	
