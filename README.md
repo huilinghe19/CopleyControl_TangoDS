@@ -19,7 +19,7 @@
 
 	3.2 Start PySerial DS:
 
- 		Command: “python PySerial.py test”
+ 		Command: “python work/sardana_practise/jive/serialLine/src/PySerial.py test ”
 
 	In addition, a new device “pyserial/hhl/1” needs to be added in PySerial DS. 
 
@@ -28,7 +28,7 @@
 
 	3.3. Start CopleyControl DS:
 
- 		Command: “python CopleyControl.py test”
+ 		Command: “python work/CopleyControl_TangoDS/CopleyControl.py test”
 
 	In addition, a new device “copley/hhl/1” needs to be added in CopleyControl DS. 
 
@@ -51,5 +51,13 @@ Frist, add pogoRevision="9.4" into the class. <classes name="PowerPMACAxes" pogo
   The Qt Designer interface will be displayed and .ui file can be opened to show the copley controller GUI, in the GUI the states, position and acceleration and "taurustrend stepnet01/position" curve can be shown.
 
 
+7. Steps to create all things from zero. the control program "CopleyController.py" is under "/controller/test".
 
+  Terminal1: python work/sardana_practise/jive/serialLine/src/PySerial.py test
+  Terminal2: python work/CopleyControl_TangoDS/CopleyControl.py test
+  Terminal3: Sardana demo4
+  Terminal4: spock
+
+  In spock, "wa", "sar_demo", "lsctrllib", "Pool_demo4_1.put_property({"PoolPath":["/controllers/test"]})", "defctrl 
+CopleyController copleyctrl" "defm stepnet1 copleyctrl 1" "copleyctrl.state()" "stepnet1.state()"
 	
